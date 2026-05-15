@@ -292,7 +292,7 @@ function fmt1(v){return typeof v==='number'?v.toFixed(1):v}
 
 async function load(){
   try{
-    const r=await fetch(API+'_='+Date.now());
+    const r=await fetch(API+'?_='+Date.now());
     const d=await r.json();
     const raw=d.games||[];
     
