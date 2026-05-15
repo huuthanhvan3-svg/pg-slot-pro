@@ -129,6 +129,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 const API='https://apislotget.replit.app/api/games';
 const VOL_BET={low:{pct:'1-2%',spins:'50-100',desc:'Thắng nhỏ đều',bar:30},medium:{pct:'0.5-1%',spins:'30-50',desc:'Cân bằng',bar:55},high:{pct:'0.25-0.5%',spins:'20-30',desc:'Big hit',bar:85}};
+const BET_VND=[
+  {lbl:'Min 1',vnd:0.4},{lbl:'Min 2',vnd:0.8},{lbl:'Min 3',vnd:1.2},{lbl:'Min 4',vnd:1.6},{lbl:'Min 5',vnd:2.0},
+  {lbl:'Med 1',vnd:2},{lbl:'Med 2',vnd:6},{lbl:'Med 3',vnd:10},{lbl:'Med 4',vnd:14},{lbl:'Med 5',vnd:18},
+  {lbl:'Max 1',vnd:20},{lbl:'Max 2',vnd:60},{lbl:'Max 3',vnd:100},{lbl:'Max 4',vnd:140},{lbl:'Max 5',vnd:180}
+];
 let games=[],filter='vote',cd=10;
 const $=id=>document.getElementById(id);
 
@@ -346,23 +351,27 @@ function card(g){
         <div class="bet-levels">
           <div class="bet-level">
             <div class="lbl">Default</div>
-            <div class="val ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${g.betFollow}%</div>
+            <div class="val ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${BET_VND[0].vnd}k</div>
             ${betBar(g.betFollow,g.betFollow>=70?'high':g.betFollow>=45?'medium':'low')}
+            <div style="font-size:7px;color:var(--text3);margin-top:2px">${g.betFollow}%</div>
           </div>
           <div class="bet-level">
             <div class="lbl">Min</div>
-            <div class="val ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${g.betMin}%</div>
+            <div class="val ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${BET_VND[4].vnd}k</div>
             ${betBar(g.betMin,g.betMin>=70?'high':g.betMin>=45?'medium':'low')}
+            <div style="font-size:7px;color:var(--text3);margin-top:2px">${g.betMin}%</div>
           </div>
           <div class="bet-level">
             <div class="lbl">Medium</div>
-            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${g.betMed}%</div>
+            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${BET_VND[9].vnd}k</div>
             ${betBar(g.betMed,g.betMed>=70?'high':g.betMed>=45?'medium':'low')}
+            <div style="font-size:7px;color:var(--text3);margin-top:2px">${g.betMed}%</div>
           </div>
           <div class="bet-level">
             <div class="lbl">Max</div>
-            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${g.betMax}%</div>
+            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${BET_VND[14].vnd}k</div>
             ${betBar(g.betMax,g.betMax>=70?'high':g.betMax>=45?'medium':'low')}
+            <div style="font-size:7px;color:var(--text3);margin-top:2px">${g.betMax}%</div>
           </div>
         </div>
         
