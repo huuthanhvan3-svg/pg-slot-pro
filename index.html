@@ -249,6 +249,8 @@ body {
     <div class="tab" data-f="low">🟢 Low Vol</div>
     <div class="tab" data-f="medium">🟡 Med Vol</div>
     <div class="tab" data-f="high">🔴 High Vol</div>
+    <div class="tab" data-f="ai">🤖 PG Ai</div>
+    <div class="tab" data-f="ailocal">🧠 Ai Local</div>
   </div>
 
   <div id="root">
@@ -340,6 +342,8 @@ function filtered(){
     case 'low': a=a.filter(g=>g.vl==='low'); break;
     case 'medium': a=a.filter(g=>g.vl==='medium'); break;
     case 'high': a=a.filter(g=>g.vl==='high'); break;
+    case 'ai': a=aiOriginal(a); break;
+    case 'ailocal': a=aiLocal(a); break;
   }
   a.sort((a,b)=>b.score-a.score);
   return a;
@@ -407,6 +411,95 @@ function sec(vl,list){
   const L={low:{i:'🟢',t:'Low Volatility · Bet nhỏ, thắng đều',c:'low'},
             medium:{i:'🟡',t:'Medium Volatility · Cân bằng, tối ưu',c:'med'},
             high:{i:'🔴',t:'High Volatility · Big hit, rủi ro cao',c:'high'}}[vl];
+
+// === AI ORIGINAL - Giống bản gốc PG Ai, chọn game theo votes + WR ===
+function aiOriginal(list){
+  return list.filter(g=>g.n>=30).sort((a,b)=>{
+    // Ưu tiên: WR cao + votes nhiều + RTP cao
+    const sa = a.bw * Math.min(a.n/100,1) * (a.rtp>=96.5?1.2:1);
+    const sb = b.bw * Math.min(b.n/100,1) * (b.rtp>=96.5?1.2:1);
+    return sb-sa;
+  }).slice(0,15);
+}
+
+// === AI LOCAL - Thuật toán riêng của em ===
+function aiLocal(list){
+  // Lọc game chất lượng
+  const good = list.filter(g=>g.rtp>=96&&g.n>=20);
+  
+  // Tính điểm chi tiết
+  good.forEach(g=>{
+    // WR confidence (Bayesian)
+    const wrScore = g.bw/100;
+    // RTP score
+    const rtpScore = Math.max(0,(g.rtp-95)/5);
+    // Volatility fit (Medium = best)
+    const volFit = g.vl==='medium'?1:g.vl==='low'?0.7:0.5;
+    // Sample confidence
+    const conf = Math.min(g.n/200,1);
+    // Trend indicator (giả định: votes gần đây nhiều = đang hot)
+    const trend = Math.min(g.n/500,1);
+    
+    g.aiScore = (wrScore*0.35)+(rtpScore*0.25)+(volFit*0.2)+(conf*0.15)+(trend*0.05);
+    g.aiReason = [];
+    
+    // Lý do AI đề xuất
+    if(g.bw>=85) g.aiReason.push('🔥 WR cao');
+    if(g.rtp>=96.8) g.aiReason.push('💰 RTP siêu cao');
+    if(g.vl==='medium') g.aiReason.push('⚖️ Vol cân bằng');
+    if(g.n>=500) g.aiReason.push('📊 Dữ liệu lớn, đáng tin');
+    if(g.n>=100) g.aiReason.push('✅ Sample đủ lớn');
+    if(g.rtp>=96.5&&g.vl==='medium') g.aiReason.push('🎯 Sweet spot!');
+    if(g.bw>=90) g.aiReason.push('🏆 Top win rate');
+  });
+  
+  return good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);
+}
+
+function aiCard(g, isLocal){
+  const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
+  
+  return `
+    <div class="game" style="border-color:rgba(240,185,11,0.3)">
+      <div class="game-row">
+        <div class="game-img">
+          <img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'" />
+        </div>
+        <div class="game-info">
+          <div class="game-title">${g.title}</div>
+          <div class="game-provider">${g.prov}</div>
+          <div class="game-badges">
+            ${isLocal?`<span class="badge b-wr" style="background:rgba(240,185,11,.2);color:var(--gold)">🧠 AI Score ${fmt(g.aiScore)}</span>`:''}
+            ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
+            ${g.n>0?`<span class="badge b-wr">B-WR ${fmt1(g.bw)}%</span>`:''}
+            <span class="badge ${volCls}">${g.vol}</span>
+            ${g.n>0?`<span class="badge b-votes">${g.n} votes</span>`:''}
+            ${g.maxWin?`<span class="badge b-maxwin">${g.maxWin}</span>`:''}
+          </div>
+          
+          <!-- Volatility Bar -->
+          <div class="vol-bar-wrap">
+            <div class="vol-bar-fill ${g.vl}" style="width:${VOL_BET[g.vl]?VOL_BET[g.vl].bar:55}%"></div>
+          </div>
+          
+          ${isLocal&&g.aiReason?`
+          <div style="margin:8px 0;padding:8px 10px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px;line-height:1.6">
+            <strong style="color:var(--gold)">🧠 Phân tích AI:</strong><br>
+            ${g.aiReason.map(r=>`<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
+          </div>`:''}
+          
+          <!-- Bet Suggestion -->
+          <div class="bet-box">
+            <span class="bet-item">💰 <strong>${g.bet.pct}</strong> mỗi spin</span>
+            <span class="bet-item">🎯 <strong>${g.bet.spins}</strong> spins</span>
+            <span class="bet-item">📊 <strong>${g.bet.desc}</strong></span>
+            <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
   return `<div class="vsec">
     <div class="vhdr ${L.c}">${L.i} ${L.t}<span class="vcnt">${list.length} games</span></div>
     ${list.map(card).join('')}
@@ -427,6 +520,11 @@ function render(){
     const gr={low:[],medium:[],high:[]};
     a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
     rt.innerHTML=(sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high))||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
+  }else if(filter==='ailocal'||filter==='ai'){
+    rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
+      <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuật toán riêng':'🤖 PG Ai - Đề xuất từ dữ liệu'}</strong><br>
+      <span style="color:var(--text2)">${filter==='ailocal'?'Phân tích Bayesian WR + RTP + Volatility + Confidence. Chọn game tối ưu nhất cho bạn.':'Dựa trên WR cao + votes nhiều + RTP cao, giống bản gốc PG Ai.'}</span>
+    </div>${a.map(g=>aiCard(g,filter==='ailocal')).join('')}`;
   }else{
     rt.innerHTML=a.slice(0,50).map(card).join('');
   }
