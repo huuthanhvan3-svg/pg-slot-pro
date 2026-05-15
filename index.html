@@ -129,7 +129,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 const API='https://apislotget.replit.app/api/games';
 const VOL_BET={low:{pct:'1-2%',spins:'50-100',desc:'Thắng nhỏ đều',bar:30},medium:{pct:'0.5-1%',spins:'30-50',desc:'Cân bằng',bar:55},high:{pct:'0.25-0.5%',spins:'20-30',desc:'Big hit',bar:85}};
-let games=[],filter='vote',cd=30;
+let games=[],filter='vote',cd=10;
 const $=id=>document.getElementById(id);
 
 function volLevel(v){
@@ -505,7 +505,7 @@ $('tabs').addEventListener('click',e=>{
   render();
 });
 
-setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=30;load();}},1000);
+setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;load();}},1000);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 load();
 </script>
