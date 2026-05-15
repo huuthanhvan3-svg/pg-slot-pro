@@ -264,7 +264,7 @@ function filtered(){
     case 'medium': a=a.filter(g=>g.vl==='medium');break;
     case 'high': a=a.filter(g=>g.vl==='high');break;
     case 'vote': a=a.filter(g=>g.n>0);break;
-    case 'classic': a=a.filter(g=>g.n>=10).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'classic': a=a.filter(g=>g.n>=10&&g.prov.toLowerCase().includes('pg soft')).sort((a,b)=>b.playScore-a.playScore);break;
     case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
     case 'ailocal': {
       const good=a.filter(g=>g.rtp>=96&&g.n>=20);
