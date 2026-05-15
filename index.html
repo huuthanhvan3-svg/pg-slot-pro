@@ -169,7 +169,8 @@ async function load(){
     const d=await r.json();
     const raw=d.games||[];
     const now=new Date();
-    const curH=now.getHours(),curM=now.getMinutes();
+    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
+    const curH=vnNow.getHours(),curM=vnNow.getMinutes();
     
     games=raw.map((g,i)=>{
       const p=g.plus_count||0,m=g.minus_count||0,t=p+m;
@@ -439,10 +440,52 @@ function render(){
     a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
     rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high)||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
   }else if(filter==='classic'){
-    rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
-      <strong style="color:var(--gold)">🎮 PG Classic - Phân tích chi tiết</strong><br>
-      <span style="color:var(--text2)">⏰ Mỗi game có khung giờ vàng riêng · 📊 Thanh nên chơi · 💰 4 mức bet · 💎 Jackpot</span>
-    </div>${a.map(card).join('')}`;
+    // Chia thành các mục
+    const now=new Date();
+    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
+    const curH=vnNow.getHours(),curM=vnNow.getMinutes(),curMin=curH*60+curM;
+    
+    // Hot game ngay bây giờ (trong khung giờ vàng)
+    const hotNow=a.filter(g=>{
+      const hs=g.timeH*60+g.timeM*30;
+      const he=g.timeM?((g.timeH+1)%24)*60:(g.timeH*60+30);
+      return curMin>=hs&&curMin<he;
+    }).sort((a,b)=>b.playScore-a.playScore);
+    
+    // Feature games - top 3 game có score cao nhất + play score cao
+    const featured=[...a].sort((a,b)=>(b.score+b.playScore/100*0.3)-(a.score+a.playScore/100*0.3)).slice(0,3);
+    
+    // High Winrate - sorted by Bayesian WR
+    const highWR=[...a].sort((a,b)=>b.bw-a.bw).slice(0,10);
+    
+    // Jackpot Frequency
+    const jackpot=[...a].sort((a,b)=>b.jackpotFreq-a.jackpotFreq).slice(0,10);
+    
+    rt.innerHTML=`
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:10px;color:var(--text3)">🕐 Giờ VN: <strong style="color:var(--gold)">${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}</strong></span>
+      </div>
+      
+      ${hotNow.length?`
+      <div class="vsec">
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Hot ngay bây giờ <span class="vcnt">${hotNow.length} games</span></div>
+        ${hotNow.slice(0,5).map(card).join('')}
+      </div>`:''}
+      
+      <div class="vsec">
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Feature Games <span class="vcnt">Top 3</span></div>
+        ${featured.map(card).join('')}
+      </div>
+      
+      <div class="vsec">
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 High Winrate <span class="vcnt">Top 10</span></div>
+        ${highWR.map(card).join('')}
+      </div>
+      
+      <div class="vsec">
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(165,94,234,.1),transparent);border:1px solid rgba(165,94,234,.2);color:var(--purple)">💎 Jackpot Frequency <span class="vcnt">Top 10</span></div>
+        ${jackpot.map(card).join('')}
+      </div>`;
   }else if(filter==='ailocal'||filter==='ai'){
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
       <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuật toán riêng':'🤖 PG Ai - Đề xuất từ dữ liệu'}</strong><br>
