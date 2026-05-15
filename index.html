@@ -131,10 +131,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 <div id="root"><div class="loading"><div class="spinner"></div><div class="loading-txt">Đang tải dữ liệu…</div></div></div>
 </div>
-<div class="bottom"><div class="bottom-inner">
-<div class="bottom-left">⏱️ <span id="cd">30</span>s · <span id="vnTime"></span></div>
-<div class="bottom-right"><span id="gc">0</span> games</div>
-</div></div>
+<div class="bottom">
+  <div class="bottom-inner">
+    <div class="bottom-left">
+      <a href="pg-slot-pro.apk" download style="color:var(--gold);text-decoration:none;font-size:11px;font-weight:600;padding:4px 10px;background:rgba(240,185,11,.1);border-radius:6px;border:1px solid rgba(240,185,11,.2)">📱 Tải APK</a>
+      <span style="color:var(--text3);margin:0 4px">·</span>
+      <span style="font-size:10px;color:var(--text3)">iOS: Safari → Share → HS</span>
+    </div>
+    <div class="bottom-right">⏱️ <span id="cd">10</span>s · <span id="gc">0</span></div>
+  </div>
+</div>
 <script>
 const API='https://apislotget.replit.app/api/games';
 const VOL_BET={low:{pct:'1-2%',spins:'50-100',desc:'Thắng nhỏ đều',bar:30},medium:{pct:'0.5-1%',spins:'30-50',desc:'Cân bằng',bar:55},high:{pct:'0.25-0.5%',spins:'20-30',desc:'Big hit',bar:85}};
