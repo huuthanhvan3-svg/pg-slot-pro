@@ -73,17 +73,25 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .play-label.cold{color:var(--text3)}
 /* Bet Levels */
 .bet-levels{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin:8px 0}
-.bet-level{padding:8px;border-radius:8px;background:var(--bg3);text-align:center}
-.bet-level .lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.bet-level .val{font-size:16px;font-weight:800}
-.bet-level .val.high{color:var(--gold)}
-.bet-level .val.medium{color:var(--orange)}
+.bet-level{padding:8px;border-radius:8px;background:var(--bg3);text-align:center;border:1px solid transparent}
+.bet-level .lbl{font-size:9px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.bet-level .val{font-size:18px;font-weight:800;letter-spacing:-.5px}
+.bet-level .val.high{color:var(--gold);text-shadow:0 0 12px rgba(240,185,11,.3)}
+.bet-level .val.medium{color:var(--orange);text-shadow:0 0 8px rgba(255,159,67,.2)}
 .bet-level .val.low{color:var(--text2)}
-.bet-level .bar{height:4px;border-radius:2px;background:var(--bg4);margin-top:4px;overflow:hidden}
-.bet-level .bar-fill{height:100%;border-radius:2px;transition:width .5s}
-.bet-level .bar-fill.high{background:var(--gold)}
-.bet-level .bar-fill.medium{background:var(--orange)}
-.bet-level .bar-fill.low{background:var(--text2)}
+.bet-level .pct{font-size:9px;font-weight:600;margin-top:1px}
+.bet-level .pct.high{color:var(--gold)}
+.bet-level .pct.medium{color:var(--orange)}
+.bet-level .pct.low{color:var(--text3)}
+.bet-level.high{border-color:rgba(240,185,11,.2);background:rgba(240,185,11,.05)}
+.bet-level.med{border-color:rgba(255,159,67,.15)}
+.bet-level.lowb{border-color:transparent}
+.bet-level .pct-df{font-size:8px;color:var(--text3);margin-top:1px}
+.bar{height:4px;border-radius:2px;background:var(--bg4);margin-top:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.bar-fill.high{background:var(--gold)}
+.bar-fill.medium{background:var(--orange)}
+.bar-fill.low{background:var(--text2)}
 .bet-demo{display:block;margin-top:8px;padding:8px;border-radius:8px;background:var(--gradient);color:#000;font-size:11px;font-weight:700;text-decoration:none;cursor:pointer;text-align:center}
 .vsec{margin-bottom:20px}
 .vhdr{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius2);margin-bottom:10px;font-size:13px;font-weight:600}
@@ -273,8 +281,16 @@ function filtered(){
     case 'medium': a=a.filter(g=>g.vl==='medium');break;
     case 'high': a=a.filter(g=>g.vl==='high');break;
     case 'vote': a=a.filter(g=>g.n>0);break;
-    case 'classic': a=a.filter(g=>g.n>=10&&g.prov.toLowerCase().includes('pg soft')).sort((a,b)=>b.playScore-a.playScore);break;
-    case 'pp': a=a.filter(g=>g.n>=10&&g.prov.toLowerCase().includes('pragmatic')).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'classic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>{
+      const aBet=(a.betFollow+a.betMin+a.betMed+a.betMax)/4;
+      const bBet=(b.betFollow+b.betMin+b.betMed+b.betMax)/4;
+      return (b.playScore*0.6+bBet*0.4)-(a.playScore*0.6+aBet*0.4);
+    });break;
+    case 'pp': a=a.filter(g=>g.n>=10&&g.prov.includes('Pragmatic')).sort((a,b)=>{
+      const aBet=(a.betFollow+a.betMin+a.betMed+a.betMax)/4;
+      const bBet=(b.betFollow+b.betMin+b.betMed+b.betMax)/4;
+      return (b.playScore*0.6+bBet*0.4)-(a.playScore*0.6+aBet*0.4);
+    });break;
     case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
     case 'ailocal': {
       const good=a.filter(g=>g.rtp>=96&&g.n>=20);
@@ -307,8 +323,6 @@ function renderStats(){
   $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.wr)))+'%':'—';
   $('gc').textContent=games.length;
 }
-
-function betBar(pct,cls){return`<div class="bar"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>`;}
 
 function card(g){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
@@ -354,29 +368,29 @@ function card(g){
         
         <!-- === 4 BET LEVELS === -->
         <div class="bet-levels">
-          <div class="bet-level">
+          <div class="bet-level ${g.betFollow>=70?'high':g.betFollow>=45?'med':'lowb'}">
             <div class="lbl">Default</div>
             <div class="val ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${BET_LEVELS[0].vnd}k</div>
-            <div style="font-size:7px;color:var(--text3)">${g.betFollow}%</div>
-            ${betBar(g.betFollow,g.betFollow>=70?'high':g.betFollow>=45?'medium':'low')}
+            <div class="pct ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${g.betFollow}%</div>
+            <div class="bar"><div class="bar-fill ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}" style="width:${g.betFollow}%"></div></div>
           </div>
-          <div class="bet-level">
+          <div class="bet-level ${g.betMin>=70?'high':g.betMin>=45?'med':'lowb'}">
             <div class="lbl">Min</div>
             <div class="val ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${BET_LEVELS[9].vnd}k</div>
-            <div style="font-size:7px;color:var(--text3)">${g.betMin}%</div>
-            ${betBar(g.betMin,g.betMin>=70?'high':g.betMin>=45?'medium':'low')}
+            <div class="pct ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${g.betMin}%</div>
+            <div class="bar"><div class="bar-fill ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}" style="width:${g.betMin}%"></div></div>
           </div>
-          <div class="bet-level">
+          <div class="bet-level ${g.betMed>=70?'high':g.betMed>=45?'med':'lowb'}">
             <div class="lbl">Medium</div>
             <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${BET_LEVELS[19].vnd}k</div>
-            <div style="font-size:7px;color:var(--text3)">${g.betMed}%</div>
-            ${betBar(g.betMed,g.betMed>=70?'high':g.betMed>=45?'medium':'low')}
+            <div class="pct ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${g.betMed}%</div>
+            <div class="bar"><div class="bar-fill ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}" style="width:${g.betMed}%"></div></div>
           </div>
-          <div class="bet-level">
+          <div class="bet-level ${g.betMax>=70?'high':g.betMax>=45?'med':'lowb'}">
             <div class="lbl">Max</div>
             <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${BET_LEVELS[25].vnd}k</div>
-            <div style="font-size:7px;color:var(--text3)">${g.betMax}%</div>
-            ${betBar(g.betMax,g.betMax>=70?'high':g.betMax>=45?'medium':'low')}
+            <div class="pct ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${g.betMax}%</div>
+            <div class="bar"><div class="bar-fill ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}" style="width:${g.betMax}%"></div></div>
           </div>
         </div>
         
