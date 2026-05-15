@@ -72,7 +72,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .play-label.warm{color:var(--orange)}
 .play-label.cold{color:var(--text3)}
 /* Bet Levels */
-.bet-levels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0}
+.bet-levels{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin:8px 0}
 .bet-level{padding:8px;border-radius:8px;background:var(--bg3);text-align:center}
 .bet-level .lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .bet-level .val{font-size:16px;font-weight:800}
@@ -115,16 +115,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top WR</div></div>
 </div>
 <div class="tabs" id="tabs">
-<div class="tab active" data-f="all">🏆 Tất cả</div>
-<div class="tab" data-f="hot">🔥 Hot game</div>
-<div class="tab" data-f="top">⭐ Top 20</div>
-<div class="tab" data-f="low">🟢 Low Vol</div>
-<div class="tab" data-f="medium">🟡 Med Vol</div>
-<div class="tab" data-f="high">🔴 High Vol</div>
+<div class="tab active" data-f="vote">🏆 Vote</div>
+<div class="tab" data-f="classic">🎮 PG Classic</div>
 <div class="tab" data-f="ai">🤖 PG Ai</div>
 <div class="tab" data-f="ailocal">🧠 Ai Local</div>
-<div class="tab" data-f="jackpot">💎 Top Jackpot</div>
-<div class="tab" data-f="winrate">📈 High Winrate</div>
 </div>
 <div id="root"><div class="loading"><div class="spinner"></div><div class="loading-txt">Đang tải dữ liệu…</div></div></div>
 </div>
@@ -135,7 +129,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 const API='https://apislotget.replit.app/api/games';
 const VOL_BET={low:{pct:'1-2%',spins:'50-100',desc:'Thắng nhỏ đều',bar:30},medium:{pct:'0.5-1%',spins:'30-50',desc:'Cân bằng',bar:55},high:{pct:'0.25-0.5%',spins:'20-30',desc:'Big hit',bar:85}};
-let games=[],filter='all',cd=30;
+let games=[],filter='vote',cd=30;
 const $=id=>document.getElementById(id);
 
 function volLevel(v){
@@ -211,6 +205,7 @@ async function load(){
       // Bet chances (giống bản gốc)
       const betFollow=calcBetChance(i,1);
       const betMin=calcBetChance(i,3);
+      const betMed=calcBetChance(i,2);
       const betMax=calcBetChance(i,4);
       
       // Play now indicator
@@ -239,7 +234,7 @@ async function load(){
         reels:(g.details&&g.details.reels)||'',
         // Original PG Classic features
         timeH,timeM,timeStr,timeRangeStr,isHotNow,playScore,
-        betFollow,betMin,betMax,
+        betFollow,betMin,betMed,betMax,
         jackpotFreq,
         idx:i
       };
@@ -267,7 +262,9 @@ function filtered(){
     case 'low': a=a.filter(g=>g.vl==='low');break;
     case 'medium': a=a.filter(g=>g.vl==='medium');break;
     case 'high': a=a.filter(g=>g.vl==='high');break;
-    case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,15);break;
+    case 'vote': a=a.filter(g=>g.n>0);break;
+    case 'classic': a=a.filter(g=>g.n>=10).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
     case 'ailocal': {
       const good=a.filter(g=>g.rtp>=96&&g.n>=20);
       good.forEach(g=>{
@@ -344,22 +341,27 @@ function card(g){
           </div>
         </div>
         
-        <!-- === 3 BET LEVELS (giống bản gốc) === -->
+        <!-- === 4 BET LEVELS === -->
         <div class="bet-levels">
           <div class="bet-level">
             <div class="lbl">Default</div>
-            <div class="val ${g.betFollow>=60?'high':g.betFollow>=30?'medium':'low'}">${g.betFollow}%</div>
-            ${betBar(g.betFollow,g.betFollow>=60?'high':g.betFollow>=30?'medium':'low')}
+            <div class="val ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${g.betFollow}%</div>
+            ${betBar(g.betFollow,g.betFollow>=70?'high':g.betFollow>=45?'medium':'low')}
           </div>
           <div class="bet-level">
-            <div class="lbl">Min Bet</div>
-            <div class="val ${g.betMin>=60?'high':g.betMin>=30?'medium':'low'}">${g.betMin}%</div>
-            ${betBar(g.betMin,g.betMin>=60?'high':g.betMin>=30?'medium':'low')}
+            <div class="lbl">Min</div>
+            <div class="val ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${g.betMin}%</div>
+            ${betBar(g.betMin,g.betMin>=70?'high':g.betMin>=45?'medium':'low')}
           </div>
           <div class="bet-level">
-            <div class="lbl">Max Bet</div>
-            <div class="val ${g.betMax>=60?'high':g.betMax>=30?'medium':'low'}">${g.betMax}%</div>
-            ${betBar(g.betMax,g.betMax>=60?'high':g.betMax>=30?'medium':'low')}
+            <div class="lbl">Medium</div>
+            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${g.betMed}%</div>
+            ${betBar(g.betMed,g.betMed>=70?'high':g.betMed>=45?'medium':'low')}
+          </div>
+          <div class="bet-level">
+            <div class="lbl">Max</div>
+            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${g.betMax}%</div>
+            ${betBar(g.betMax,g.betMax>=70?'high':g.betMax>=45?'medium':'low')}
           </div>
         </div>
         
@@ -432,10 +434,15 @@ function render(){
   const a=filtered();
   const rt=$('root');
   if(!a.length){rt.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';return;}
-  if(filter==='all'){
+  if(filter==='vote'){
     const gr={low:[],medium:[],high:[]};
     a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
-    rt.innerHTML=(sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high))||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
+    rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high)||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
+  }else if(filter==='classic'){
+    rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
+      <strong style="color:var(--gold)">🎮 PG Classic - Phân tích chi tiết</strong><br>
+      <span style="color:var(--text2)">⏰ Mỗi game có khung giờ vàng riêng · 📊 Thanh nên chơi · 💰 4 mức bet · 💎 Jackpot</span>
+    </div>${a.map(card).join('')}`;
   }else if(filter==='ailocal'||filter==='ai'){
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
       <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuật toán riêng':'🤖 PG Ai - Đề xuất từ dữ liệu'}</strong><br>
