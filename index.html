@@ -127,7 +127,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="tab" data-f="vote">🏆 Vote</div>
 <div class="tab" data-f="pp">🎰 PP Game</div>
 <div class="tab" data-f="pgnew">🆕 PG New</div>
-<div class="tab" data-f="xanhchin">🌿 Xanh Chín</div>
 <div class="tab" data-f="ai">🤖 PG Ai</div>
 <div class="tab active" data-f="ailocal">🧠 Ai Local</div>
 </div>
@@ -300,7 +299,6 @@ function filtered(){
       return (b.playScore*0.6+bBet*0.4)-(a.playScore*0.6+aBet*0.4);
     });break;
     case 'pgnew': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.idx-a.idx).slice(0,20);break;
-    case 'xanhchin': return [];break;
     case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
     case 'ailocal': {
       const good=a.filter(g=>g.rtp>=96&&g.n>=20);
@@ -473,39 +471,7 @@ function render(){
   const a=filtered();
   const rt=$('root');
   if(!a.length){rt.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';return;}
-  if(filter==='xanhchin'){
-    rt.innerHTML=`<div style="padding:16px">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:40px;margin-bottom:8px">🌿</div>
-        <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:4px">Chơi Xanh Chín</div>
-        <div style="font-size:11px;color:var(--text2)">Đề cử trang web · Không can thiệp game</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <a href="https://apislotget.replit.app/api/games" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:var(--text);display:flex;gap:12px;align-items:center">
-          <span style="font-size:24px">📊</span>
-          <div><div style="font-weight:600;font-size:13px">API Game List</div><div style="font-size:10px;color:var(--text2)">Dữ liệu gốc 259 games, cập nhật realtime</div></div>
-        </a>
-        <a href="https://huuthanhvan3-svg.github.io/pg-slot-pro/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:var(--text);display:flex;gap:12px;align-items:center">
-          <span style="font-size:24px">🎰</span>
-          <div><div style="font-weight:600;font-size:13px">PG Slot Pro Dashboard</div><div style="font-size:10px;color:var(--text2)">Tool phân tích hot game, bet levels, thời gian vàng</div></div>
-        </a>
-        <a href="https://www.pgsoft.com/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:var(--text);display:flex;gap:12px;align-items:center">
-          <span style="font-size:24px">🏢</span>
-          <div><div style="font-weight:600;font-size:13px">PG Soft Official</div><div style="font-size:10px;color:var(--text2)">Trang chủ nhà phát triển game PG Soft</div></div>
-        </a>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px">
-          <div style="font-weight:600;font-size:13px;margin-bottom:8px">📝 Nguyên tắc Xanh Chín</div>
-          <ul style="font-size:11px;color:var(--text2);line-height:1.8;padding-left:16px">
-            <li>Chỉ chơi với số tiền có thể mất</li>
-            <li>Đặt giới hạn thua mỗi ngày</li>
-            <li>Không chase thua</li>
-            <li>Chơi giải trí, không phải kiếm sống</li>
-            <li>Tool phân tích = tham khảo, không đảm bảo thắng</li>
-          </ul>
-        </div>
-      </div>
-    </div>`;}
-  else if(filter==='vote'){
+  if(filter==='vote'){
     const gr={low:[],medium:[],high:[]};
     a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
     rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high)||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
