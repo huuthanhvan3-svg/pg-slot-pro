@@ -133,9 +133,10 @@ const BET_LEVELS=[
   {lbl:'L1',vnd:0.4},{lbl:'L2',vnd:0.8},{lbl:'L3',vnd:1.2},{lbl:'L4',vnd:1.6},{lbl:'L5',vnd:2.0},
   {lbl:'L6',vnd:2.4},{lbl:'L7',vnd:2.8},{lbl:'L8',vnd:3.2},{lbl:'L9',vnd:3.6},{lbl:'L10',vnd:4.0},
   {lbl:'L11',vnd:4},{lbl:'L12',vnd:8},{lbl:'L13',vnd:12},{lbl:'L14',vnd:16},{lbl:'L15',vnd:20},
-  {lbl:'L16',vnd:60},{lbl:'L17',vnd:100},{lbl:'L18',vnd:200}
+  {lbl:'L16',vnd:24},{lbl:'L17',vnd:28},{lbl:'L18',vnd:32},{lbl:'L19',vnd:36},{lbl:'L20',vnd:40},
+  {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
-// Default=Min1(0.4k), Min=MaxMin(4k), Medium=MaxMed(20k), Max=MaxMax(200k)
+// Default=Min(L1=0.4k), Min=Mid bracket(L10=4k), Medium=Mid-max(L20=40k), Max=Max(L26=1000k)
 let games=[],filter='vote',cd=10;
 const $=id=>document.getElementById(id);
 
@@ -365,13 +366,13 @@ function card(g){
           </div>
           <div class="bet-level">
             <div class="lbl">Medium</div>
-            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${BET_LEVELS[14].vnd}k</div>
+            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${BET_LEVELS[19].vnd}k</div>
             <div style="font-size:7px;color:var(--text3)">${g.betMed}%</div>
             ${betBar(g.betMed,g.betMed>=70?'high':g.betMed>=45?'medium':'low')}
           </div>
           <div class="bet-level">
             <div class="lbl">Max</div>
-            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${BET_LEVELS[17].vnd}k</div>
+            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${BET_LEVELS[25].vnd}k</div>
             <div style="font-size:7px;color:var(--text3)">${g.betMax}%</div>
             ${betBar(g.betMax,g.betMax>=70?'high':g.betMax>=45?'medium':'low')}
           </div>
