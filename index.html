@@ -326,7 +326,7 @@ async function load(){
     });
     
     $('sdot').className='dot green';
-    $('stxt').textContent=new Date().toLocaleTimeString();
+    $('stxt').textContent=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'});
     render();
   }catch(e){
     $('sdot').className='dot red';
