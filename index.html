@@ -123,7 +123,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top WR</div></div>
 </div>
 <div class="tabs" id="tabs">
-<div class="tab" data-f="classic">🎮 PG Classic</div>
+<div class="tab active" data-f="classic">🎮 PG Classic</div>
 <div class="tab" data-f="vote">🏆 Vote</div>
 <div class="tab" data-f="pp">🎰 PP Game</div>
 <div class="tab" data-f="pgnew">🆕 PG New</div>
@@ -153,7 +153,7 @@ const BET_LEVELS=[
   {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
 // Default=Min(L1=0.4k), Min=Mid bracket(L10=4k), Medium=Mid-max(L20=40k), Max=Max(L26=1000k)
-let games=[],filter='ailocal',cd=10;
+let games=[],filter='classic',cd=10;
 const $=id=>document.getElementById(id);
 
 function volLevel(v){
