@@ -60,7 +60,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .b-maxwin{background:rgba(255,159,67,.12);color:var(--orange)}
 .b-time{background:rgba(0,210,255,.12);color:var(--cyan)}
 .b-jackpot{background:rgba(255,71,87,.15);color:var(--red)}
-/* Play Now Indicator */
 .play-now{margin:8px 0;display:flex;align-items:center;gap:8px}
 .play-bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;position:relative}
 .play-bar-fill{height:100%;border-radius:4px;transition:width .5s}
@@ -71,7 +70,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .play-label.hot{color:var(--gold)}
 .play-label.warm{color:var(--orange)}
 .play-label.cold{color:var(--text3)}
-/* Bet Levels */
 .bet-levels{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin:8px 0}
 .bet-level{padding:8px;border-radius:8px;background:var(--bg3);text-align:center;border:1px solid transparent}
 .bet-level .lbl{font-size:9px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
@@ -128,7 +126,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="tab" data-f="pp">🎰 PP Game</div>
 <div class="tab" data-f="pgnew">🆕 PG New</div>
 <div class="tab" data-f="ai">🤖 PG Ai</div>
-<div class="tab active" data-f="ailocal">🧠 Ai Local</div>
+<div class="tab" data-f="ailocal">🧠 Ai Local</div>
+<div class="tab" data-f="trending">📈 Trending</div>
 </div>
 <div id="root"><div class="loading"><div class="spinner"></div><div class="loading-txt">Đang tải dữ liệu…</div></div></div>
 </div>
@@ -144,7 +143,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 <script>
 const API='https://apislotget.replit.app/api/games';
-const VOL_BET={low:{pct:'1-2%',spins:'50-100',desc:'Thắng nhỏ đều',bar:30},medium:{pct:'0.5-1%',spins:'30-50',desc:'Cân bằng',bar:55},high:{pct:'0.25-0.5%',spins:'20-30',desc:'Big hit',bar:85}};
 const BET_LEVELS=[
   {lbl:'L1',vnd:0.4},{lbl:'L2',vnd:0.8},{lbl:'L3',vnd:1.2},{lbl:'L4',vnd:1.6},{lbl:'L5',vnd:2.0},
   {lbl:'L6',vnd:2.4},{lbl:'L7',vnd:2.8},{lbl:'L8',vnd:3.2},{lbl:'L9',vnd:3.6},{lbl:'L10',vnd:4.0},
@@ -152,50 +150,20 @@ const BET_LEVELS=[
   {lbl:'L16',vnd:24},{lbl:'L17',vnd:28},{lbl:'L18',vnd:32},{lbl:'L19',vnd:36},{lbl:'L20',vnd:40},
   {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
-// Default=Min(L1=0.4k), Min=Mid bracket(L10=4k), Medium=Mid-max(L20=40k), Max=Max(L26=1000k)
-let games=[],filter='classic',cd=10;
+let games=[],filter='classic',cd=10,prevVotes={};
 const $=id=>document.getElementById(id);
-
-function volLevel(v){
-  const s=(v||'').toLowerCase();
-  if(s.includes('low'))return'low';
-  if(s.includes('med'))return'medium';
-  if(s.includes('hig'))return'high';
-  return'medium';
-}
 
 function bayes(wr,n){return(wr*n+2500)/(n+50)}
 function fmt(v){return typeof v==='number'?v.toFixed(2):v}
 function fmt1(v){return typeof v==='number'?v.toFixed(1):v}
 
-// === Hàm deterministic theo ngày (giống calcFormula gốc) ===
-function dailySeed(gameIdx){
-  const d=new Date();
-  const dateStr=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'-'+gameIdx;
-  let hash=0;
-  for(let i=0;i<dateStr.length;i++){hash=((hash<<5)-hash)+dateStr.charCodeAt(i);hash|=0;}
-  return Math.abs(hash);
-}
-
-function dailyRange(min,max,gameIdx,mult){
-  const seed=dailySeed(gameIdx*(mult||1));
-  return min+(seed%(max-min+1));
-}
-
-function calcBetChance(gameIdx,mult){
-  return 5+dailySeed(gameIdx*mult)%95;
-}
-
-// === Phân tích game ===
+// === Phan tich game — DU LIEU THAT 100% ===
 async function load(){
   try{
     const r=await fetch(API+'?_='+Date.now());
     const d=await r.json();
     const raw=d.games||[];
-    const now=new Date();
-    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
-    const curH=vnNow.getHours(),curM=vnNow.getMinutes();
-    
+
     games=raw.map((g,i)=>{
       const p=g.plus_count||0,m=g.minus_count||0,t=p+m;
       const wr=t>0?p/t*100:0;
@@ -204,75 +172,53 @@ async function load(){
       const rs=(g.details&&g.details.rtp)||'';
       const rm=rs.match(/([\d.]+)/);
       if(rm)rtp=parseFloat(rm[1]);
-      
+
       const vol=(g.details&&g.details.volatility)||'Medium';
-      const vl=volLevel(vol);
-      const bet=VOL_BET[vl];
+      const vl=vol.toLowerCase().includes('low')?'low':vol.toLowerCase().includes('hig')?'high':'medium';
+
+      // Vote velocity: so vote moi giua cac lan fetch
+      const prev=prevVotes[g.id||i]||t;
+      const delta=t-prev;
+      prevVotes[g.id||i]=t;
+
+      const vc=g.view_count||0;
       const conf=Math.min(t/200,1);
       const rtpSc=Math.max(0,Math.min(1,(rtp-90)/10));
-      const volSc={low:.8,medium:1.0,high:.6}[vl]||.6;
-      const score=(bw/100*.35)+(rtpSc*.25)+(volSc*.2)+(conf*.2);
-      
-      // === Daily-deterministic values (giống calcFormula gốc) ===
-      const timeH=dailyRange(0,23,i,1);
-      const timeM=dailyRange(0,1,i,2); // 0=00, 1=30
-      const timeStr=String(timeH).padStart(2,'0')+':'+(timeM?timeM*30:'00');
-      const timeEndH=timeM?timeH+1:timeH;
-      const timeEndStr=String(timeEndH).padStart(2,'0')+':'+(timeM?'00':'30');
-      const timeRangeStr=timeStr+' - '+timeEndStr;
-      
-      // Check if current time is within hot time
-      const hotStart=timeH*60+timeM*30;
-      const hotEnd=timeEndH*60+(timeM?0:30);
-      const curMin=curH*60+curM;
-      const isHotNow=curMin>=hotStart&&curMin<hotEnd;
-      
-      // Bet chances (giống bản gốc)
-      const betFollow=calcBetChance(i,1);
-      const betMin=calcBetChance(i,3);
-      const betMed=calcBetChance(i,2);
-      const betMax=calcBetChance(i,4);
-      
-      // Play now indicator
-      const timeDist=Math.min(
-        Math.abs(curMin-hotStart),
-        Math.abs(curMin-hotEnd),
-        1440-Math.abs(curMin-hotStart),
-        1440-Math.abs(curMin-hotEnd)
-      );
-      const timeScore=isHotNow?100:Math.max(0,100-timeDist/14.4);
-      
-      // Composite play score
-      const playScore=Math.round(
-        (bw/100*30)+(timeScore/100*25)+(rtpSc*20)+(conf*15)+(volSc*10)
-      );
-      
-      // Jackpot frequency (deterministic daily)
-      const jackpotFreq=dailyRange(0,200,i,6);
-      
+      const volSc={low:0.8,medium:1.0,high:0.6}[vl]||0.6;
+
+      // Real-time signals
+      const isTrending=delta>0;
+      const trendStrength=delta>5?delta/10:0;
+      const isPopular=vc>10;
+      const popScore=Math.min(vc/100,1);
+
+      // Score that: Bayesian WR + RTP + vote velocity + popularity
+      const score=(bw/100*0.30)+(rtpSc*0.20)+(volSc*0.15)+(conf*0.15)+(trendStrength*0.10)+(popScore*0.10);
+
+      // Play score: nen choi hay ko dua tren trend + winrate + confidence
+      const playScore=Math.min(100,Math.round(
+        (bw/100*35)+(isTrending?25:delta>-10?10:0)+(rtpSc*15)+(conf*15)+(popScore*10)
+      ));
+
       return{
         title:g.title||'Unknown',prov:g.provider||'',
         img:g.image_url||'',demo:g.demo_link||'',
-        rtp,wr,bw,n:t,vol,vl,bet,score,
+        rtp,wr,bw,n:t,vol,vl,score,
         maxWin:(g.details&&g.details.maxWin)||'',
         paylines:(g.details&&g.details.paylines)||'',
         reels:(g.details&&g.details.reels)||'',
-        // Original PG Classic features
-        timeH,timeM,timeStr,timeRangeStr,isHotNow,playScore,
-        betFollow,betMin,betMed,betMax,
-        jackpotFreq,
+        isTrending,delta,trendStrength,isPopular,vc,
+        playScore,
         idx:i
       };
     });
-    
+
+    const now=new Date();
+    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
     $('sdot').className='dot green';
-    $('stxt').textContent=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'});
+    $('stxt').textContent=vnNow.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
     render();
-    // Update VN time every minute
-    setInterval(()=>{
-      $('vnTime').textContent=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit'});
-    },60000);
-    $('vnTime').textContent=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit'});
+    $('vnTime').textContent=vnNow.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
   }catch(e){
     $('sdot').className='dot red';
     $('stxt').textContent='Error';
@@ -282,127 +228,75 @@ async function load(){
 function filtered(){
   let a=[...games];
   switch(filter){
-    case 'hot': a=a.filter(g=>g.isHotNow||g.playScore>=70);break;
-    case 'top': a.sort((a,b)=>b.score-a.score);a=a.slice(0,20);break;
+    case 'hot': a=a.filter(g=>g.playScore>=60||g.isTrending);break;
+    case 'top': a.sort((a,b)=>b.score-a.score).slice(0,30);break;
     case 'low': a=a.filter(g=>g.vl==='low');break;
     case 'medium': a=a.filter(g=>g.vl==='medium');break;
     case 'high': a=a.filter(g=>g.vl==='high');break;
     case 'vote': a=a.filter(g=>g.n>0);break;
-    case 'classic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>{
-      const aBet=(a.betFollow+a.betMin+a.betMed+a.betMax)/4;
-      const bBet=(b.betFollow+b.betMin+b.betMed+b.betMax)/4;
-      return (b.playScore*0.6+bBet*0.4)-(a.playScore*0.6+aBet*0.4);
-    });break;
-    case 'pp': a=a.filter(g=>g.n>=10&&g.prov.includes('Pragmatic')).sort((a,b)=>{
-      const aBet=(a.betFollow+a.betMin+a.betMed+a.betMax)/4;
-      const bBet=(b.betFollow+b.betMin+b.betMed+b.betMax)/4;
-      return (b.playScore*0.6+bBet*0.4)-(a.playScore*0.6+aBet*0.4);
-    });break;
+    case 'classic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'pp': a=a.filter(g=>g.n>=10&&g.prov.includes('Pragmatic')).sort((a,b)=>b.playScore-a.playScore);break;
     case 'pgnew': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.idx-a.idx).slice(0,20);break;
     case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
     case 'ailocal': {
       const good=a.filter(g=>g.rtp>=96&&g.n>=20);
       good.forEach(g=>{
-        const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1);
-        g.aiScore=(wrS*.35)+(rtpS*.25)+(volFit*.2)+(cnf*.15)+(trd*.05);
+        const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1),trendB=g.isTrending?.15:0;
+        g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(trendB*.10);
         g.aiReasons=[];
         if(g.bw>=85)g.aiReasons.push('🔥 WR cao');
         if(g.rtp>=96.8)g.aiReasons.push('💰 RTP cao');
-        if(g.vl==='medium')g.aiReasons.push('⚖️ Vol cân bằng');
-        if(g.n>=500)g.aiReasons.push('📊 Dữ liệu lớn');
-        if(g.n>=100)g.aiReasons.push('✅ Sample đủ');
-        if(g.isHotNow)g.aiReasons.push('⏰ Giờ đẹp!');
+        if(g.vl==='medium')g.aiReasons.push('⚖️ Vol can bang');
+        if(g.n>=500)g.aiReasons.push('📊 Du lieu lon');
+        if(g.n>=100)g.aiReasons.push('✅ Sample du');
+        if(g.isTrending)g.aiReasons.push('📈 Dang hot (+'+g.delta+' votes)');
       });
       a=good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);break;
     }
-    case 'jackpot': a.sort((a,b)=>b.jackpotFreq-a.jackpotFreq).slice(0,30);break;
     case 'winrate': a.sort((a,b)=>b.bw-a.bw).slice(0,30);break;
+    case 'trending': a.sort((a,b)=>b.delta-a.delta).slice(0,30);break;
   }
   a.sort((a,b)=>b.score-a.score);
   return a;
 }
 
-function renderStats(){
-  const v=games.filter(g=>g.n>0);
-  $('tG').textContent=games.length;
-  const ra=games.filter(g=>g.rtp>0).map(g=>g.rtp);
-  $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
-  $('aWR').textContent=v.length?fmt1(v.reduce((a,b)=>a+b.wr,0)/v.length)+'%':'—';
-  $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.wr)))+'%':'—';
-  $('gc').textContent=games.length;
-}
-
 function card(g){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
-  const volLbl={low:'Low',medium:'Medium',high:'High'}[g.vl];
-  const barPct=VOL_BET[g.vl]?VOL_BET[g.vl].bar:55;
+  const barPct=g.vl==='low'?30:g.vl==='medium'?55:85;
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
-  const maxBet=Math.max(g.betFollow,g.betMin,g.betMax);
-  
+  const blDef=BET_LEVELS[0],blMin=BET_LEVELS[9],blMed=BET_LEVELS[19],blMax=BET_LEVELS[25];
+  const wrPct=Math.min(100,Math.round(g.bw));
+  const wrCls=g.bw>=70?'high':g.bw>=45?'medium':'low';
+
   return`<div class="game">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
         <div class="game-title">${g.title}</div>
-        <div class="game-provider">${g.prov} · ⏰ ${g.timeRangeStr}</div>
+        <div class="game-provider">${g.prov} · ${g.n} votes</div>
         <div class="badges">
           ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
-          ${g.n>0?`<span class="badge b-wr">B-WR ${fmt1(g.bw)}%</span>`:''}
+          ${g.n>0?`<span class="badge b-wr">WR ${fmt1(g.bw)}%</span>`:''}
           <span class="badge ${volCls}">${g.vol}</span>
-          ${g.n>0?`<span class="badge b-votes">${g.n} votes</span>`:''}
           ${g.maxWin?`<span class="badge b-maxwin">${g.maxWin}</span>`:''}
-          ${g.jackpotFreq>50?`<span class="badge b-jackpot">💎 ${g.jackpotFreq}</span>`:''}
-          ${g.isHotNow?`<span class="badge b-time">⏰ Giờ đẹp!</span>`:''}
+          ${g.isTrending?`<span class="badge b-time">📈 +${g.delta} votes</span>`:''}
+          ${g.vc>10?`<span class="badge b-votes">👁 ${g.vc}</span>`:''}
         </div>
-        
-        <!-- === PLAY NOW INDICATOR === -->
+
         <div class="play-now">
-          <span style="font-size:10px;color:var(--text3)">Nên chơi</span>
-          <div class="play-bar-wrap">
-            <div class="play-bar-fill ${playCls}" style="width:${g.playScore}%"></div>
-          </div>
-          <span class="play-label ${playCls}">${g.playScore}%</span>
+          <span style="font-size:10px;color:var(--text3)">Win Rate</span>
+          <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
+          <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
         </div>
-        
-        <!-- === VOLATILITY BAR === -->
-        <div style="margin:6px 0">
-          <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${barPct}%;border-radius:2px;background:${g.vl==='low'?'var(--green)':g.vl==='medium'?'var(--gold)':'var(--red)'}"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--text3);margin-top:2px">
-            <span>Low</span><span style="font-weight:700;color:${g.vl==='low'?'var(--green)':g.vl==='medium'?'var(--gold)':'var(--red)'}">${volLbl}</span><span>High</span>
-          </div>
-        </div>
-        
-        <!-- === 4 BET LEVELS === -->
+
         <div class="bet-levels">
-          <div class="bet-level ${g.betFollow>=70?'high':g.betFollow>=45?'med':'lowb'}">
-            <div class="lbl">Default</div>
-            <div class="val ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${BET_LEVELS[0].vnd}k</div>
-            <div class="pct ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}">${g.betFollow}%</div>
-            <div class="bar"><div class="bar-fill ${g.betFollow>=70?'high':g.betFollow>=45?'medium':'low'}" style="width:${g.betFollow}%"></div></div>
-          </div>
-          <div class="bet-level ${g.betMin>=70?'high':g.betMin>=45?'med':'lowb'}">
-            <div class="lbl">Min</div>
-            <div class="val ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${BET_LEVELS[9].vnd}k</div>
-            <div class="pct ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}">${g.betMin}%</div>
-            <div class="bar"><div class="bar-fill ${g.betMin>=70?'high':g.betMin>=45?'medium':'low'}" style="width:${g.betMin}%"></div></div>
-          </div>
-          <div class="bet-level ${g.betMed>=70?'high':g.betMed>=45?'med':'lowb'}">
-            <div class="lbl">Medium</div>
-            <div class="val ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${BET_LEVELS[19].vnd}k</div>
-            <div class="pct ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}">${g.betMed}%</div>
-            <div class="bar"><div class="bar-fill ${g.betMed>=70?'high':g.betMed>=45?'medium':'low'}" style="width:${g.betMed}%"></div></div>
-          </div>
-          <div class="bet-level ${g.betMax>=70?'high':g.betMax>=45?'med':'lowb'}">
-            <div class="lbl">Max</div>
-            <div class="val ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${BET_LEVELS[25].vnd}k</div>
-            <div class="pct ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}">${g.betMax}%</div>
-            <div class="bar"><div class="bar-fill ${g.betMax>=70?'high':g.betMax>=45?'medium':'low'}" style="width:${g.betMax}%"></div></div>
-          </div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Default</div><div class="val high">${blDef.vnd}k</div><div class="pct ${wrCls}">${blDef.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Min</div><div class="val medium">${blMin.vnd}k</div><div class="pct ${wrCls}">${blMin.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Medium</div><div class="val medium">${blMed.vnd}k</div><div class="pct ${wrCls}">${blMed.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Max</div><div class="val high">${blMax.vnd}k</div><div class="pct ${wrCls}">${blMax.lbl}</div></div>
         </div>
-        
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Chơi Demo - ${g.bet.pct} bankroll · ${g.bet.spins} spins</a>
+
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Choi Demo</a>
       </div>
     </div>
   </div>`;
@@ -411,123 +305,90 @@ function card(g){
 function aiCard(g,isLocal){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
-  const maxBet=Math.max(g.betFollow,g.betMin,g.betMax);
-  
+  const wrPct=Math.min(100,Math.round(g.bw));
+  const blDef=BET_LEVELS[0],blMin=BET_LEVELS[9],blMed=BET_LEVELS[19],blMax=BET_LEVELS[25];
+  const wrCls=g.bw>=70?'high':g.bw>=45?'medium':'low';
+
   return`<div class="game" style="border-color:rgba(240,185,11,0.3)">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
         <div class="game-title">${g.title}</div>
-        <div class="game-provider">${g.prov} · ⏰ ${g.timeRangeStr}</div>
+        <div class="game-provider">${g.prov} · ${g.n} votes</div>
         <div class="badges">
           ${isLocal?`<span class="badge b-wr" style="background:rgba(240,185,11,.2);color:var(--gold)">🧠 ${fmt(g.aiScore)}</span>`:''}
           ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
-          ${g.n>0?`<span class="badge b-wr">B-WR ${fmt1(g.bw)}%</span>`:''}
+          ${g.n>0?`<span class="badge b-wr">WR ${fmt1(g.bw)}%</span>`:''}
           <span class="badge ${volCls}">${g.vol}</span>
-          ${g.n>0?`<span class="badge b-votes">${g.n} votes</span>`:''}
-          ${g.isHotNow?`<span class="badge b-time">⏰ Giờ đẹp!</span>`:''}
+          ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
         </div>
-        
-        <!-- PLAY NOW -->
+
         <div class="play-now">
-          <span style="font-size:10px;color:var(--text3)">Nên chơi</span>
-          <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${g.playScore}%"></div></div>
-          <span class="play-label ${playCls}">${g.playScore}%</span>
+          <span style="font-size:10px;color:var(--text3)">Win Rate</span>
+          <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
+          <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
         </div>
-        
-        <!-- VOLATILITY -->
-        <div style="margin:6px 0">
-          <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${VOL_BET[g.vl]?VOL_BET[g.vl].bar:55}%;border-radius:2px;background:${g.vl==='low'?'var(--green)':g.vl==='medium'?'var(--gold)':'var(--red)'}"></div>
-          </div>
-        </div>
-        
-        <!-- AI REASONS -->
+
         ${isLocal&&g.aiReasons?`<div style="margin:6px 0;padding:8px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px">
-          <strong style="color:var(--gold)">🧠 AI phân tích:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
+          <strong style="color:var(--gold)">🧠 AI phan tich:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
         </div>`:''}
-        
-        <!-- 3 BET LEVELS -->
+
         <div class="bet-levels">
-          <div class="bet-level"><div class="lbl">Default</div><div class="val ${g.betFollow>=60?'high':g.betFollow>=30?'medium':'low'}">${g.betFollow}%</div>${betBar(g.betFollow,g.betFollow>=60?'high':g.betFollow>=30?'medium':'low')}</div>
-          <div class="bet-level"><div class="lbl">Min Bet</div><div class="val ${g.betMin>=60?'high':g.betMin>=30?'medium':'low'}">${g.betMin}%</div>${betBar(g.betMin,g.betMin>=60?'high':g.betMin>=30?'medium':'low')}</div>
-          <div class="bet-level"><div class="lbl">Max Bet</div><div class="val ${g.betMax>=60?'high':g.betMax>=30?'medium':'low'}">${g.betMax}%</div>${betBar(g.betMax,g.betMax>=60?'high':g.betMax>=30?'medium':'low')}</div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Default</div><div class="val high">${blDef.vnd}k</div><div class="pct ${wrCls}">${blDef.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Min</div><div class="val medium">${blMin.vnd}k</div><div class="pct ${wrCls}">${blMin.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Medium</div><div class="val medium">${blMed.vnd}k</div><div class="pct ${wrCls}">${blMed.lbl}</div></div>
+          <div class="bet-level ${wrCls}"><div class="lbl">Max</div><div class="val high">${blMax.vnd}k</div><div class="pct ${wrCls}">${blMax.lbl}</div></div>
         </div>
-        
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Chơi Demo</a>
+
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Choi Demo</a>
       </div>
     </div>
   </div>`;
 }
 
-function sec(vl,list){
-  if(!list.length)return'';
-  const L={low:{i:'🟢',t:'Low Vol · Bet nhỏ, thắng đều',c:'low'},medium:{i:'🟡',t:'Medium Vol · Cân bằng, tối ưu',c:'med'},high:{i:'🔴',t:'High Vol · Big hit, rủi ro cao',c:'high'}}[vl];
-  return`<div class="vsec"><div class="vhdr ${L.c}">${L.i} ${L.t}<span class="vcnt">${list.length} games</span></div>${list.map(card).join('')}</div>`;
-}
-
 function render(){
-  renderStats();
+  const v=games.filter(g=>g.n>0);
+  $('tG').textContent=games.length;
+  const ra=games.filter(g=>g.rtp>0).map(g=>g.rtp);
+  $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
+  $('aWR').textContent=v.length?fmt1(v.reduce((a,b)=>a+b.wr,0)/v.length)+'%':'—';
+  $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.bw)))+'%':'—';
+  $('gc').textContent=games.length;
+
   const a=filtered();
   const rt=$('root');
-  if(!a.length){rt.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';return;}
+  if(!a.length){rt.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">📭 Khong co game</div>';return;}
+
   if(filter==='vote'){
     const gr={low:[],medium:[],high:[]};
     a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
-    rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high)||'<div style="text-align:center;padding:40px;color:var(--text3)">📭 Không có game</div>';
-  }else if(filter==='classic'||filter==='pp'){
-    const label=filter==='classic'?'PG Classic':'Pragmatic Play';
-    const icon=filter==='classic'?'🎮':'🎰';
-    // Chia thành các mục
-    const now=new Date();
-    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
-    const curH=vnNow.getHours(),curM=vnNow.getMinutes(),curMin=curH*60+curM;
-    
-    // Hot game ngay bây giờ (trong khung giờ vàng)
-    const hotNow=a.filter(g=>{
-      const hs=g.timeH*60+g.timeM*30;
-      const he=g.timeM?((g.timeH+1)%24)*60:(g.timeH*60+30);
-      return curMin>=hs&&curMin<he;
-    }).sort((a,b)=>b.playScore-a.playScore);
-    
-    // Feature games - top 3 game có score cao nhất + play score cao
-    const featured=[...a].sort((a,b)=>(b.score+b.playScore/100*0.3)-(a.score+a.playScore/100*0.3)).slice(0,3);
-    
-    // High Winrate - sorted by Bayesian WR
+    const sec=(vl,list)=>{
+      if(!list.length)return'';
+      const L={low:{i:'🟢',t:'Low Vol',c:'low'},medium:{i:'🟡',t:'Medium Vol',c:'med'},high:{i:'🔴',t:'High Vol',c:'high'}}[vl];
+      return`<div class="vsec"><div class="vhdr ${L.c}">${L.i} ${L.t}<span class="vcnt">${list.length} games</span></div>${list.map(x=>card(x)).join('')}</div>`;
+    };
+    rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high);
+  }else if(filter==='classic'){
+    const trending=a.filter(g=>g.isTrending).sort((a,b)=>b.delta-a.delta);
+    const featured=[...a].sort((a,b)=>b.score-a.score).slice(0,3);
     const highWR=[...a].sort((a,b)=>b.bw-a.bw).slice(0,10);
-    
-    // Jackpot Frequency
-    const jackpot=[...a].sort((a,b)=>b.jackpotFreq-a.jackpotFreq).slice(0,10);
-    
     rt.innerHTML=`
-      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-        <span style="font-size:10px;color:var(--text3)">🕐 Giờ VN: <strong style="color:var(--gold)">${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}</strong></span>
-      </div>
-      
-      ${hotNow.length?`
-      <div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Hot ngay bây giờ <span class="vcnt">${hotNow.length} games</span></div>
-        ${hotNow.slice(0,5).map(card).join('')}
+      ${trending.length?`<div class="vsec">
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Dang len <span class="vcnt">${trending.length} games</span></div>
+        ${trending.slice(0,5).map(card).join('')}
       </div>`:''}
-      
       <div class="vsec">
         <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Feature Games <span class="vcnt">Top 3</span></div>
         ${featured.map(card).join('')}
       </div>
-      
       <div class="vsec">
         <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 High Winrate <span class="vcnt">Top 10</span></div>
         ${highWR.map(card).join('')}
-      </div>
-      
-      <div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(165,94,234,.1),transparent);border:1px solid rgba(165,94,234,.2);color:var(--purple)">💎 Jackpot Frequency <span class="vcnt">Top 10</span></div>
-        ${jackpot.map(card).join('')}
       </div>`;
   }else if(filter==='ailocal'||filter==='ai'){
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
-      <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuật toán riêng':'🤖 PG Ai - Đề xuất từ dữ liệu'}</strong><br>
-      <span style="color:var(--text2)">${filter==='ailocal'?'Phân tích Bayesian WR + RTP + Vol + Confidence. Giờ Việt Nam (UTC+7).':'Dựa trên WR + votes + RTP, giống bản gốc PG Ai.'}</span>
+      <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuat toan rieng':'🤖 PG Ai - De xuat tu du lieu'}</strong><br>
+      <span style="color:var(--text2)">${filter==='ailocal'?'Phan tich Bayesian WR + RTP + Vol + Trending':'Dua tren WR + votes + RTP.'}</span>
     </div>${a.map(g=>aiCard(g,filter==='ailocal')).join('')}`;
   }else{
     rt.innerHTML=a.slice(0,50).map(card).join('');
