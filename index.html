@@ -12,7 +12,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#070814;--bg2:#0c0d22;--bg3:#11132e;--bg4:#161840;--border:#1b1d48;--border2:#2a2d5e;--text:#e4e5f5;--text2:#8a8db8;--text3:#4e5180;--gold:#f0b90b;--green:#00d68f;--red:#ff4757;--orange:#ff9f43;--blue:#4a7dff;--purple:#a55eea;--gradient:linear-gradient(135deg,#f0b90b,#d4a309);--radius:14px;--radius2:10px}
+:root{--bg:#070814;--bg2:#0c0d22;--bg3:#11132e;--bg4:#161840;--border:#1b1d48;--border2:#2a2d5e;--text:#e4e5f5;--text2:#8a8db8;--text3:#4e5180;--gold:#f0b90b;--green:#00d68f;--red:#ff4757;--orange:#ff9f43;--blue:#4a7dff;--purple:#a55eea;--cyan:#00d2ff;--gradient:linear-gradient(135deg,#f0b90b,#d4a309);--radius:14px;--radius2:10px}
 html{font-size:16px}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 .header{position:sticky;top:0;z-index:100;background:rgba(7,8,20,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
@@ -60,6 +60,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .b-maxwin{background:rgba(255,159,67,.12);color:var(--orange)}
 .b-time{background:rgba(0,210,255,.12);color:var(--cyan)}
 .b-jackpot{background:rgba(255,71,87,.15);color:var(--red)}
+.b-fc{background:rgba(255,109,45,.15);color:var(--orange)}
+.b-new{background:rgba(240,185,11,.15);color:var(--gold)}
 .play-now{margin:8px 0;display:flex;align-items:center;gap:8px}
 .play-bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;position:relative}
 .play-bar-fill{height:100%;border-radius:4px;transition:width .5s}
@@ -91,11 +93,15 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bar-fill.medium{background:var(--orange)}
 .bar-fill.low{background:var(--text2)}
 .bet-demo{display:block;margin-top:8px;padding:8px;border-radius:8px;background:var(--gradient);color:#000;font-size:11px;font-weight:700;text-decoration:none;cursor:pointer;text-align:center}
+.bet-demo.fc{background:linear-gradient(135deg,#ff6d2d,#ff9f43);color:#000}
+.bet-demo.fc2{background:linear-gradient(135deg,#8b5cf6,#a55eea);color:#fff}
 .vsec{margin-bottom:20px}
 .vhdr{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius2);margin-bottom:10px;font-size:13px;font-weight:600}
 .vhdr.low{background:linear-gradient(135deg,rgba(0,214,143,.08),transparent);border:1px solid rgba(0,214,143,.15);color:var(--green)}
 .vhdr.med{background:linear-gradient(135deg,rgba(240,185,11,.08),transparent);border:1px solid rgba(240,185,11,.15);color:var(--gold)}
 .vhdr.high{background:linear-gradient(135deg,rgba(255,71,87,.08),transparent);border:1px solid rgba(255,71,87,.15);color:var(--red)}
+.vhdr.fc{background:linear-gradient(135deg,rgba(255,109,45,.1),transparent);border:1px solid rgba(255,109,45,.2);color:var(--orange)}
+.vhdr.purple{background:linear-gradient(135deg,rgba(139,92,246,.1),transparent);border:1px solid rgba(139,92,246,.2);color:#a78bfa}
 .vcnt{margin-left:auto;font-size:10px;opacity:.5}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
@@ -105,6 +111,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bottom-inner{max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
 .bottom-left,.bottom-right{font-size:11px;color:var(--text3)}
 @media(min-width:600px){.stats{gap:12px}.stat{padding:16px}.stat-num{font-size:28px}.game-img{width:90px;height:90px}}
+/* FC specific */
+.bet-range-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.bet-range-item{padding:10px;border-radius:8px;background:var(--bg3);text-align:center;border:1px solid transparent}
+.bet-range-item .lbl{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.bet-range-item .val{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.bet-range-item .val.gold{color:var(--gold)}
+.bet-range-item .val.orange{color:var(--orange)}
+.bet-range-item .val.green{color:var(--green)}
+.bet-range-item .sub{font-size:9px;color:var(--text2);margin-top:2px}
+.fc-rating{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--gold);background:rgba(240,185,11,.1);padding:2px 8px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -125,9 +141,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="tab" data-f="vote">🏆 Vote</div>
 <div class="tab" data-f="pp">🎰 PP Game</div>
 <div class="tab" data-f="pgnew">🆕 PG New</div>
+<div class="tab" data-f="fc">🔥 FC Game</div>
+<div class="tab" data-f="fcnew">🆕 FC New</div>
+<div class="tab" data-f="fchot">🏆 FC Hot</div>
+<div class="tab" data-f="trending">📈 Trending</div>
 <div class="tab" data-f="ai">🤖 PG Ai</div>
 <div class="tab" data-f="ailocal">🧠 Ai Local</div>
-<div class="tab" data-f="trending">📈 Trending</div>
 </div>
 <div id="root"><div class="loading"><div class="spinner"></div><div class="loading-txt">Đang tải dữ liệu…</div></div></div>
 </div>
@@ -150,12 +169,57 @@ const BET_LEVELS=[
   {lbl:'L16',vnd:24},{lbl:'L17',vnd:28},{lbl:'L18',vnd:32},{lbl:'L19',vnd:36},{lbl:'L20',vnd:40},
   {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
+// === FA CHAI (FC) GAMES DATA ===
+const FC_GAMES=[
+  {id:"super-elements-2",title:"Super Elements 2",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x10,000",vol:"Medium/High",ways:3600,reels:5,date:"2026-04-29",rating:4.6,img:"https://slotranker.com/images/fa-chai-gaming/super-elements-2",prov:"Fa Chai",tags:["NEW","Cascading","Free Spins","Bonus Buy"],features:["Cascading wins","Golden Symbols → Wild","Multiplier x1536","Free Spins 10-50","Bonus Buy 60x"]},
+  {id:"poker-win-2",title:"Poker Win 2",rtp:96.5,minBet:0.60,maxBet:600,maxWin:"x15,000",vol:"High",ways:4096,reels:5,date:"2025-12-16",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/poker-win-2",prov:"Fa Chai",tags:["NEW","Cascading","Multiway"],features:["Symbol Swap","Free Spins","Cascading wins","Multiplier"]},
+  {id:"sword-of-king",title:"Sword of King",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x3,000",vol:"Medium/High",ways:243,reels:5,date:"2025-08-06",rating:3.8,img:"https://slotranker.com/images/fa-chai-gaming/sword-of-king",prov:"Fa Chai",tags:["NEW","Hold & Win"],features:["Hold and Win","Fixed Jackpots","Bonus Bet","Free Spins"]},
+  {id:"bad-rich-wolf",title:"Bad Rich Wolf",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x22,500",vol:"High",ways:5,reels:5,date:"2025",rating:4.7,img:"https://slotranker.com/images/fa-chai-gaming/bad-rich-wolf",prov:"Fa Chai",tags:["HOT","High Win"],features:["Stack","Wild Symbol","Multiplier","x22,500 max"]},
+  {id:"crazy-buffalo",title:"Crazy Buffalo",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x10,000",vol:"Medium/High",ways:1024,reels:5,date:"2022-12-13",rating:4.6,img:"https://slotranker.com/images/fa-chai-gaming/crazy-buffalo",prov:"Fa Chai",tags:["HOT","Bonus Buy"],features:["Buffalo Mechanics","Free Spins","Wild Multipliers","Bonus Buy"]},
+  {id:"treasures-of-odin",title:"Treasures of Odin",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x5,000",vol:"High",ways:30,reels:5,date:"2025-06-30",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/treasures-of-odin",prov:"Fa Chai",tags:["NEW"],features:["Cash Collector","Fixed Jackpots","Free Spins","Bonus Game"]},
+  {id:"night-market-2",title:"Night Market 2",rtp:96.5,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"High",ways:243,reels:5,date:"2022-09-22",rating:4.5,img:"https://slotranker.com/images/fa-chai-gaming/night-market-2",prov:"Fa Chai",tags:["HOT","Bonus Buy"],features:["Free Spins Mode Choosing","Bonus Buy","Multiplier","High Vol"]},
+  {id:"sugar-bang-bang-2",title:"Sugar Bang Bang 2",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x5,000",vol:"Medium",ways:1024,reels:6,date:"2025-04-09",rating:3.8,img:"https://slotranker.com/images/fa-chai-gaming/sugar-bang-bang-2",prov:"Fa Chai",tags:["NEW","Cascading"],features:["Cascading wins","Free Spins","Bonus Bet","Multiplier"]},
+  {id:"buffalo-ways-fa-chai-gaming",title:"Buffalo Ways",rtp:96.5,minBet:0.60,maxBet:600,maxWin:"x2,000",vol:"Medium",ways:243,reels:6,date:"2025-08-31",rating:3.7,img:"https://slotranker.com/images/fa-chai-gaming/buffalo-ways-fa-chai-gaming",prov:"Fa Chai",tags:["NEW"],features:["Expanding Symbols","Free Spins","Symbols Collection","Bonus Bet"]},
+  {id:"phoenix-fever",title:"Phoenix Fever",rtp:96.5,minBet:0.88,maxBet:88,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2025-07-13",rating:4.1,img:"https://slotranker.com/images/fa-chai-gaming/phoenix-fever",prov:"Fa Chai",tags:["NEW"],features:["Hold and Win","Respins","Sticky Symbols","Free Spins"]},
+  {id:"fortune-goddess",title:"Fortune Goddess",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2024-12-13",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/fortune-goddess",prov:"Fa Chai",tags:[],features:["Hold and Win","Cash Collector","Fixed Jackpots","Bonus Buy","Progressive Jackpot"]},
+  {id:"lucky-fortunes",title:"Lucky Fortunes ★4.9",rtp:96.5,minBet:0.88,maxBet:88,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2022-12-02",rating:4.9,img:"https://slotranker.com/images/fa-chai-gaming/lucky-fortunes",prov:"Fa Chai",tags:["TOP"],features:["Pick Objects","Fixed Jackpots","Free Spins","Bonus Game"]},
+  {id:"rich-man",title:"Rich Man ★4.8",rtp:96.5,minBet:0.80,maxBet:100,maxWin:"x10,000",vol:"Medium",ways:32400,reels:6,date:"2022-09-22",rating:4.8,img:"https://slotranker.com/images/fa-chai-gaming/rich-man",prov:"Fa Chai",tags:["TOP","Mega Ways"],features:["Avalanche","Cascading","Mystery Symbol","Free Spins Mode Choosing"]},
+  {id:"glory-of-rome",title:"Glory of Rome",rtp:96.52,minBet:0.50,maxBet:500,maxWin:"x1,550",vol:"Medium/High",ways:25,reels:5,date:"2022-11-23",rating:4.4,img:"https://slotranker.com/images/fa-chai-gaming/glory-of-rome",prov:"Fa Chai",tags:[],features:["Random Wilds","Free Spins","Medium/High Vol"]},
+  {id:"chilihuahua",title:"Chilihuahua",rtp:96.5,minBet:0.80,maxBet:1000,maxWin:"x10,000",vol:"Medium",ways:32400,reels:6,date:"2022-12-13",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chilihuahua",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Colossal Reels","Progressive Jackpot","Bonus Buy","Cascading"]},
+  {id:"golden-genie",title:"Golden Genie",rtp:96.5,minBet:0.80,maxBet:10,maxWin:"x10,000",vol:"Medium/High",ways:32400,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/golden-genie",prov:"Fa Chai",tags:["Mega Ways","Progressive"],features:["Megaways","Progressive Jackpot","Free Spins","Bonus Buy"]},
+  {id:"grand-blue",title:"Grand Blue",rtp:96.59,minBet:0.80,maxBet:100,maxWin:"x3,500",vol:"Medium",ways:32400,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/grand-blue",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Cascading","Free Spins","Bonus Buy"]},
+  {id:"queen-of-inca",title:"Queen of Inca",rtp:95.5,minBet:0.80,maxBet:1000,maxWin:"x5,000",vol:"High",ways:32400,reels:6,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/queen-of-inca",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Cash Collector","Free Spins","Bonus Buy"]},
+  {id:"legend-of-inca",title:"Legend of Inca",rtp:96.5,minBet:0.80,maxBet:1000,maxWin:"x1,500",vol:"Medium",ways:32400,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/legend-of-inca",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Hold and Win","Cash Collector","Bonus Buy"]},
+  {id:"merge-magic",title:"Merge Magic",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x1,000",vol:"Medium",ways:"Cluster",reels:6,date:"2022-09-14",rating:3.9,img:"https://slotranker.com/images/fa-chai-gaming/merge-magic",prov:"Fa Chai",tags:[],features:["Cluster Pays","Cascading","Bonus Buy","Colossal Reels"]},
+  {id:"jungle-bang-bang",title:"Jungle Bang Bang",rtp:96.5,minBet:0.90,maxBet:900,maxWin:"x12,000",vol:"High",ways:1024,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/jungle-bang-bang",prov:"Fa Chai",tags:[],features:["Symbol Swap","Free Spins","Cascading","Multiplier","Bonus Bet"]},
+  {id:"egypt-bonanza",title:"Egypt Bonanza",rtp:96.5,minBet:0.80,maxBet:150,maxWin:"x5,000",vol:"Medium/High",ways:"Pay Anywhere",reels:6,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/egypt-bonanza",prov:"Fa Chai",tags:[],features:["Colossal Reels","Respins","Bonus Buy","Pay Anywhere"]},
+  {id:"muscle-fortune-cat",title:"Muscle Fortune Cat",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x10,000",vol:"High",ways:4096,reels:6,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/muscle-fortune-cat",prov:"Fa Chai",tags:[],features:["4096 Ways","Cascading","Bonus Buy","Wild Multipliers"]},
+  {id:"d-j-boom-boom",title:"DJ Boom Boom",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x5,000",vol:"Medium/High",ways:3600,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/d-j-boom-boom",prov:"Fa Chai",tags:[],features:["Sticky Symbols","Free Spins","Bonus Buy","Wild Multipliers"]},
+  {id:"open-vault",title:"Open Vault",rtp:96.5,minBet:0.10,maxBet:100,maxWin:"x10,000",vol:"High",ways:2000,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/open-vault",prov:"Fa Chai",tags:["Bonus Buy"],features:["Bonus Wheel","Free Spins","Bonus Buy","Cascading"]},
+  {id:"robin-hood",title:"Robin Hood",rtp:96.5,minBet:0.10,maxBet:100,maxWin:"x10,000",vol:"High",ways:1,reels:3,date:"2022-11-17",rating:4.4,img:"https://slotranker.com/images/fa-chai-gaming/robin-hood",prov:"Fa Chai",tags:["High Vol"],features:["Bonus Game","Respins","Multiplier"]},
+  {id:"fortune-egg",title:"Fortune Egg",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x1,000",vol:"Medium",ways:50,reels:5,date:"2022-08-17",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/fortune-egg",prov:"Fa Chai",tags:[],features:["Hold and Win","Bonus Game","Free Spins","Bonus Buy"]},
+  {id:"zeus",title:"Zeus",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x1,000",vol:"Medium",ways:50,reels:5,date:"2022-09-03",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/zeus",prov:"Fa Chai",tags:[],features:["Pick Objects","Free Spins","Bonus Buy","Reelset Changing"]},
+  {id:"money-tree-dozer",title:"Money Tree Dozer",rtp:97,minBet:0.10,maxBet:100,maxWin:"x1,000",vol:"Medium",ways:5,reels:3,date:"2020",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/money-tree-dozer",prov:"Fa Chai",tags:["RTP 97%"],features:["Bonus Game","Random Multiplier","RTP 97%"]},
+  {id:"circus-dozer",title:"Circus Dozer",rtp:97,minBet:0.10,maxBet:100,maxWin:"x2,000",vol:"Medium/High",ways:5,reels:5,date:"2022-08-13",rating:4.7,img:"https://slotranker.com/images/fa-chai-gaming/circus-dozer",prov:"Fa Chai",tags:["RTP 97%"],features:["Random Multiplier","5 Paylines","Medium/High Vol"]},
+  {id:"chinese-new-year-2",title:"Chinese New Year 2",rtp:96.5,minBet:0.60,maxBet:90,maxWin:"x16,800",vol:"High",ways:243,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chinese-new-year-2",prov:"Fa Chai",tags:["High Win"],features:["Free Spins Mode Choosing","Bonus Bet","High Vol"]},
+  {id:"chinese-new-year-moreways",title:"CNY MoreWays",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x1,536",vol:"Medium",ways:15625,reels:6,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chinese-new-year-moreways",prov:"Fa Chai",tags:["Mega Ways"],features:["15625 Ways","Progressive Jackpot","Cascading","Bonus Buy"]},
+  {id:"hot-pot-party",title:"Hot Pot Party",rtp:96.45,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"Medium/High",ways:5,reels:3,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/hot-pot-party",prov:"Fa Chai",tags:[],features:["Level Up","Reelset Changing","Free Spins"]},
+  {id:"cyber-god-of-fortune",title:"Cyber God of Fortune",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x21,600",vol:"Medium",ways:243,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/cyber-god-of-fortune",prov:"Fa Chai",tags:["High Win"],features:["Free Spins","Multiplier","x21,600 max win"]},
+  {id:"da-le-men",title:"Da Le Men",rtp:96.3,minBet:0.50,maxBet:50,maxWin:"x2,500",vol:"Medium",ways:243,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/da-le-men",prov:"Fa Chai",tags:[],features:["Free Spins","Cascading","243 Ways"]},
+  {id:"fortune-money-boom",title:"Fortune Money Boom",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/fortune-money-boom",prov:"Fa Chai",tags:[],features:["Cash Collector","Fixed Jackpots","Symbol Swap","Free Spins"]},
+  {id:"animal-racing",title:"Animal Racing",rtp:96.35,minBet:0.88,maxBet:440,maxWin:"x3,000",vol:"Medium",ways:88,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/animal-racing",prov:"Fa Chai",tags:[],features:["Colossal Reels","Cascading","Stack","Random Wilds"]},
+  {id:"happy-duo-bao",title:"Happy Duo Bao",rtp:96.5,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"Medium",ways:5,reels:5,date:"2022-11-23",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/happy-duo-bao",prov:"Fa Chai",tags:[],features:["Cascading","Pick Objects","Level Up","Reelset Changing"]},
+  {id:"magic-beans",title:"Magic Beans",rtp:96.38,minBet:0.50,maxBet:50,maxWin:"x10,000",vol:"Medium/High",ways:243,reels:5,date:"2022-12-02",rating:3.9,img:"https://slotranker.com/images/fa-chai-gaming/magic-beans",prov:"Fa Chai",tags:[],features:["Free Spins","243 Ways","Medium/High Vol"]},
+  {id:"super-elements",title:"Super Elements",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x2,000",vol:"Medium",ways:2000,reels:5,date:"2023-10-16",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/super-elements",prov:"Fa Chai",tags:[],features:["Cascading","Bonus Buy","Free Spins"]},
+  {id:"cowboys",title:"Cowboys ★4.9",rtp:96.44,minBet:0.30,maxBet:900,maxWin:"x300",vol:"Low",ways:15,reels:5,date:"2022-09-02",rating:4.9,img:"https://slotranker.com/images/fa-chai-gaming/cowboys",prov:"Fa Chai",tags:["TOP","Low Vol"],features:["Pick Objects","Free Spins","Cascading","Low Vol"]},
+];
 let games=[],filter='classic',cd=10,prevVotes={};
 const $=id=>document.getElementById(id);
 
 function bayes(wr,n){return(wr*n+2500)/(n+50)}
 function fmt(v){return typeof v==='number'?v.toFixed(2):v}
 function fmt1(v){return typeof v==='number'?v.toFixed(1):v}
+function fmtVnd(usd){return Math.round(usd*25)} // $1 ≈ 25k VND
 
 // === Phan tich game — DU LIEU THAT 100% ===
 async function load(){
@@ -176,7 +240,6 @@ async function load(){
       const vol=(g.details&&g.details.volatility)||'Medium';
       const vl=vol.toLowerCase().includes('low')?'low':vol.toLowerCase().includes('hig')?'high':'medium';
 
-      // Vote velocity: so vote moi giua cac lan fetch
       const prev=prevVotes[g.id||i]||t;
       const delta=t-prev;
       prevVotes[g.id||i]=t;
@@ -186,16 +249,13 @@ async function load(){
       const rtpSc=Math.max(0,Math.min(1,(rtp-90)/10));
       const volSc={low:0.8,medium:1.0,high:0.6}[vl]||0.6;
 
-      // Real-time signals
       const isTrending=delta>0;
       const trendStrength=delta>5?delta/10:0;
       const isPopular=vc>10;
       const popScore=Math.min(vc/100,1);
 
-      // Score that: Bayesian WR + RTP + vote velocity + popularity
       const score=(bw/100*0.30)+(rtpSc*0.20)+(volSc*0.15)+(conf*0.15)+(trendStrength*0.10)+(popScore*0.10);
 
-      // Play score: nen choi hay ko dua tren trend + winrate + confidence
       const playScore=Math.min(100,Math.round(
         (bw/100*35)+(isTrending?25:delta>-10?10:0)+(rtpSc*15)+(conf*15)+(popScore*10)
       ));
@@ -223,6 +283,79 @@ async function load(){
     $('sdot').className='dot red';
     $('stxt').textContent='Error';
   }
+}
+
+function fcCard(g){
+  const volCls=g.vol.toLowerCase().includes('high')?'b-vol-h':g.vol.toLowerCase().includes('low')?'b-vol-l':'b-vol-m';
+  const barPct=g.vol.toLowerCase().includes('high')?85:g.vol.toLowerCase().includes('low')?30:55;
+  const minVnd=fmtVnd(g.minBet);
+  const maxVnd=fmtVnd(g.maxBet);
+  const isNew=g.tags.includes("NEW");
+  const isHot=g.tags.includes("HOT");
+  const isTop=g.tags.includes("TOP");
+
+  return`<div class="game" style="border-color:${isNew?'rgba(240,185,11,0.3)':isHot?'rgba(255,71,87,0.3)':'var(--border)'}">
+    <div class="game-row">
+      <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
+      <div class="game-info">
+        <div class="game-title">${g.title}</div>
+        <div class="game-provider">${g.prov} · ${g.ways} ways · ${g.reels} reels</div>
+        <div class="badges">
+          <span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>
+          <span class="badge ${volCls}">${g.vol}</span>
+          <span class="badge b-maxwin">${g.maxWin}</span>
+          ${isNew?`<span class="badge b-new">🆕 Mới</span>`:''}
+          ${isHot?`<span class="badge b-time">🔥 Hot</span>`:''}
+          ${isTop?`<span class="badge b-jackpot">🏆 Top</span>`:''}
+          ${g.rating?`<span class="badge b-votes">★ ${g.rating}</span>`:''}
+          ${g.tags.includes("Mega Ways")?`<span class="badge b-wr">⚡ Mega</span>`:''}
+          ${g.tags.includes("RTP 97%")?`<span class="badge" style="background:rgba(0,214,143,.2);color:var(--green)">💰 RTP 97%</span>`:''}
+          ${g.tags.includes("Bonus Buy")?`<span class="badge" style="background:rgba(255,159,67,.12);color:var(--orange)">🎯 Buy</span>`:''}
+          ${g.tags.includes("Progressive")?`<span class="badge b-jackpot">🏆 Jackpot</span>`:''}
+        </div>
+
+        <div class="bet-range-grid">
+          <div class="bet-range-item" style="border-color:rgba(0,214,143,.15)">
+            <div class="lbl">Min Bet</div>
+            <div class="val green">$${g.minBet.toFixed(2)}</div>
+            <div class="sub">${minVnd}K VND</div>
+          </div>
+          <div class="bet-range-item" style="border-color:rgba(240,185,11,.2)">
+            <div class="lbl">Max Bet</div>
+            <div class="val gold">$${g.maxBet.toFixed(2)}</div>
+            <div class="sub">${maxVnd}K VND</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">
+          ${g.features.slice(0,4).map(f=>`<span style="font-size:9px;color:var(--text2);background:var(--bg4);padding:2px 6px;border-radius:4px">${f}</span>`).join('')}
+        </div>
+
+        <a class="bet-demo fc" href="https://web.fachaigaming.com/game/${g.id==='buffalo-ways-fa-chai-gaming'?'22088':g.id==='super-elements-2'?'22098':g.id==='super-elements'?'22055':g.id==='bad-rich-wolf'?'22071':g.id==='poker-win-2'?'22111':g.id==='sword-of-king'?'22073':g.id==='crazy-buffalo'?'22056':g.id==='treasures-of-odin'?'22078':g.id==='night-market-2'?'22063':g.id==='sugar-bang-bang-2'?'22070':g.id==='buffalo-ways'?'22088':g.id==='phoenix-fever'?'22076':g.id==='fortune-goddess'?'22079':g.id==='chilihuahua'?'22066':g.id==='golden-genie'?'22067':g.id==='grand-blue'?'22080':g.id==='queen-of-inca'?'22082':g.id==='legend-of-inca'?'22083':g.id==='merge-magic'?'22064':g.id==='jungle-bang-bang'?'22065':g.id==='egypt-bonanza'?'22069':g.id==='muscle-fortune-cat'?'22068':g.id==='dj-boom-boom'?'22072':g.id==='open-vault'?'22124':g.id==='robin-hood'?'22089':g.id==='fortune-egg'?'22058':g.id==='zeus'?'22059':g.id==='money-tree-dozer'?'22090':g.id==='circus-dozer'?'22092':g.id==='chinese-new-year-2'?'22062':g.id==='chinese-new-year-moreways'?'22091':g.id==='hot-pot-party'?'22060':g.id==='cyber-god-of-fortune'?'22075':g.id==='da-le-men'?'22074':g.id==='fortune-money-boom'?'22061':g.id==='animal-racing'?'22112':g.id==='happy-duo-bao'?'22086':g.id==='magic-beans'?'22084':g.id==='cowboys'?'22087':g.id==='lucky-fortunes'?'22085':g.id==='rich-man'?'22057':g.id==='glory-of-rome'?'22081':g.id==='sugar-bang-bang-2'?'22070':'22098'}/en" target="_blank">▶ Demo FC</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFC(games,title,icon){
+  const volOrder={high:[],'medium/high':[],medium:[],'medium/low':[],low:[]};
+  games.forEach(g=>{
+    const v=g.vol.toLowerCase();
+    if(v.includes('high'))volOrder['high'].push(g);
+    else if(v.includes('medium'))volOrder['medium'].push(g);
+    else volOrder['low'].push(g);
+  });
+  let html='';
+  if(volOrder.high.length){
+    html+=`<div class="vsec"><div class="vhdr high">🔴 High Volatility<span class="vcnt">${volOrder.high.length} games</span></div>${volOrder.high.map(g=>fcCard(g)).join('')}</div>`;
+  }
+  if(volOrder['medium'].length){
+    html+=`<div class="vsec"><div class="vhdr med">🟡 Medium Volatility<span class="vcnt">${volOrder.medium.length} games</span></div>${volOrder.medium.map(g=>fcCard(g)).join('')}</div>`;
+  }
+  if(volOrder.low.length){
+    html+=`<div class="vsec"><div class="vhdr low">🟢 Low Volatility<span class="vcnt">${volOrder.low.length} games</span></div>${volOrder.low.map(g=>fcCard(g)).join('')}</div>`;
+  }
+  return html;
 }
 
 function filtered(){
@@ -255,6 +388,7 @@ function filtered(){
     }
     case 'winrate': a.sort((a,b)=>b.bw-a.bw).slice(0,30);break;
     case 'trending': a.sort((a,b)=>b.delta-a.delta).slice(0,30);break;
+    // FC cases are handled separately in render()
   }
   a.sort((a,b)=>b.score-a.score);
   return a;
@@ -347,6 +481,30 @@ function aiCard(g,isLocal){
 }
 
 function render(){
+  // For FC tabs, render embedded data
+  if(filter==='fc'||filter==='fcnew'||filter==='fchot'){
+    let fcGames=[...FC_GAMES];
+    if(filter==='fcnew'){
+      fcGames=fcGames.filter(g=>g.tags.includes("NEW")).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    }else if(filter==='fchot'){
+      fcGames=fcGames.filter(g=>g.tags.includes("HOT")||g.tags.includes("TOP")||g.rating>=4.3).sort((a,b)=>b.rating-a.rating);
+    }
+    const totalFc=FC_GAMES.length;
+    const avgRtp=FC_GAMES.reduce((s,g)=>s+g.rtp,0)/totalFc;
+    $('tG').textContent=totalFc;
+    $('aRTP').textContent=fmt1(avgRtp)+'%';
+    $('aWR').textContent='—';
+    $('tWR').textContent=Math.max(...FC_GAMES.map(g=>g.rtp)).toFixed(1)+'%';
+    const icon=filter==='fcnew'?'🆕':filter==='fchot'?'🏆':'🔥';
+    const title=filter==='fcnew'?'FC Games Mới Nhất':filter==='fchot'?'FC Games Hot Nhất':'Tất Cả Game Fa Chai';
+    const infoBar=`<div style="margin-bottom:12px;padding:12px;background:rgba(255,109,45,.06);border:1px solid rgba(255,109,45,.15);border-radius:12px;font-size:12px;line-height:1.5">
+      <strong style="color:var(--orange)">${icon} FA CHAI GAMING — ${totalFc} games</strong><br>
+      <span style="color:var(--text2)">RTP trung bình ${fmt1(avgRtp)}% · Từ $0.10 đến $1,000 mỗi spin · Có Bonus Buy, Cascading, Megaways</span>
+    </div>`;
+    $('root').innerHTML=infoBar+renderFC(fcGames,title,icon);
+    return;
+  }
+
   const v=games.filter(g=>g.n>0);
   $('tG').textContent=games.length;
   const ra=games.filter(g=>g.rtp>0).map(g=>g.rtp);
@@ -401,7 +559,14 @@ $('tabs').addEventListener('click',e=>{
   $('tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   filter=t.dataset.f;
+  // Don't fetch API for FC tabs
+  if(filter==='fc'||filter==='fcnew'||filter==='fchot'){
+    render();
+    return;
+  }
   render();
+  if(games.length>0)render();
+  else load();
 });
 
 setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;load();}},1000);
