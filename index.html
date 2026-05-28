@@ -132,8 +132,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="stats">
 <div class="stat"><div class="stat-num" id="tG">—</div><div class="stat-lbl">Games</div></div>
 <div class="stat gold"><div class="stat-num" id="aRTP">—</div><div class="stat-lbl">Avg RTP</div></div>
-<div class="stat green"><div class="stat-num" id="aWR">—</div><div class="stat-lbl">Avg Win Rate</div></div>
-<div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top Win Rate</div></div>
+<div class="stat green"><div class="stat-num" id="aWR">—</div><div class="stat-lbl">Avg RTP</div></div>
+<div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top RTP</div></div>
 </div>
 <div class="tabs" id="tabs">
 <!-- PG DIVIDER -->
@@ -218,6 +218,7 @@ async function loadPG(){
         details:g.details||{},
         rtp,wr,bw,n:t,vol,vl,score,
         maxWin:(g.details&&g.details.maxWin)||'',
+        details:g.details||{},
         isTrending,delta,isPopular,vc,
         playScore,type:'pg',idx:i
       };
@@ -436,8 +437,7 @@ function pgCard(g,isAi){
         <div class="game-title">${g.title}</div>
         <div class="game-provider">${g.prov} · ${g.details&&g.details.releaseDate?g.details.releaseDate:''} · ${g.n} lượt</div>
         <div class="badges">
-          ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
-          ${g.n>0?`<span class="badge b-wr">WR ${fmt1(g.bw)}%</span>`:''}
+          <span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>
           <span class="badge ${volCls}">${g.vol}</span>
           ${g.maxWin?`<span class="badge b-maxwin">${g.maxWin}</span>`:''}
           ${g.details&&g.details.paylines?`<span class="badge b-wr">Dòng ${g.details.paylines}</span>`:''}
@@ -480,8 +480,7 @@ function pgAiCard(g){
         <div class="game-title">${g.title}</div>
         <div class="game-provider">${g.prov} · ${g.n} lượt</div>
         <div class="badges">
-          ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
-          <span class="badge b-wr">WR ${fmt1(g.bw)}%</span>
+          <span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>
           <span class="badge ${volCls}">${g.vol}</span>
           ${g.details&&g.details.paylines?`<span class="badge b-wr">Dòng ${g.details.paylines}</span>`:''}
           ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
@@ -569,15 +568,13 @@ function render(){
     case 'pgai': {
       const good=a.filter(g=>g.rtp>0||g.n>0);
       good.forEach(g=>{
-        const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1),trendB=g.isTrending?.15:0;
-        g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(trendB*.10);
+        const wrS=Math.min(g.rtp/100,1),rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=0.5;
+        g.aiScore=(wrS*.35)+(rtpS*.25)+(volFit*.20)+(cnf*.20);
         g.aiReasons=[];
-        if(g.bw>=85)g.aiReasons.push('🔥 WR cao');
         if(g.rtp>=96.8)g.aiReasons.push('💰 RTP cao');
         if(g.vl==='medium')g.aiReasons.push('⚖️ Vol cân bằng');
-        if(g.n>=500)g.aiReasons.push('📊 Dữ liệu lớn');
-        if(g.n>=100)g.aiReasons.push('✅ Sample đủ');
-        if(g.isTrending)g.aiReasons.push('📈 Đang hot (+'+g.delta+' votes)');
+        if(g.vl==='high')g.aiReasons.push('🔥 Vol cao - thắng lớn');
+        if(g.rtp>=97)g.aiReasons.push('🔥 RTP cực cao');
       });
       a=good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);
       break;
@@ -586,31 +583,28 @@ function render(){
   }
   a.sort((a,b)=>b.score-a.score);
 
-  const v=pgGames.filter(g=>g.n>0);
-  $('tG').textContent=pgGames.length;
-  const ra=pgGames.filter(g=>g.rtp>0).map(g=>g.rtp);
-  $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
-  $('aWR').textContent=v.length?fmt1(v.reduce((a,b)=>a+b.wr,0)/v.length)+'%':'—';
-  $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.bw)))+'%':'—';
-  $('gc').textContent=pgGames.length;
+  // PG Classic — style original app
+  if(filter==='pgclassic'||filter==='pgnew'||filter==='pghot'||filter==='pgai'||filter==='trending'){
+    $('tG').textContent=pgGames.length;
+    const ra=pgGames.filter(g=>g.rtp>0).map(g=>g.rtp);
+    $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
+    $('aWR').textContent=fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%';
+    $('tWR').textContent=ra.length?fmt1(Math.max(...ra))+'%':'—';
+    $('gc').textContent=pgGames.length;
+  }
 
   const rt=$('root');
   if(filter==='pgclassic'){
-    const trending=a.filter(g=>g.isTrending).sort((a,b)=>b.delta-a.delta);
-    const featured=[...a].sort((a,b)=>b.score-a.score).slice(0,3);
-    const highWR=[...a].sort((a,b)=>b.bw-a.bw).slice(0,10);
+    const featured=[...a].sort((a,b)=>b.rtp-a.rtp).slice(0,3);
+    const highRTP=[...a].sort((a,b)=>b.rtp-a.rtp).slice(0,10);
     rt.innerHTML=`
-      ${trending.length?`<div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Đang lên <span class="vcnt">${trending.length} games</span></div>
-        ${trending.slice(0,5).map(g=>pgCard(g)).join('')}
-      </div>`:''}
       <div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Featured Games <span class="vcnt">Top 3</span></div>
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Top RTP <span class="vcnt">Top 3</span></div>
         ${featured.map(g=>pgCard(g)).join('')}
       </div>
       <div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 High Winrate <span class="vcnt">Top 10</span></div>
-        ${highWR.map(g=>pgCard(g)).join('')}
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 PG Games <span class="vcnt">All 69</span></div>
+        ${highRTP.map(g=>pgCard(g)).join('')}
       </div>`;
       startAnim();
   }else if(filter==='pgai'){
