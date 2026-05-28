@@ -241,13 +241,30 @@ async function loadFC(){
 }
 
 // === RENDER FC CARDS ===
+function fcBetLevels(minBet,maxBet){
+  const def=Math.max(0.40,minBet*2);
+  const medium=minBet+(maxBet-minBet)*0.25;
+  const lvls=[
+    {lbl:'Default',vnd:Math.round(def*25),raw:def},
+    {lbl:'Min',vnd:Math.round(minBet*25),raw:minBet},
+    {lbl:'Medium',vnd:Math.round(medium*25),raw:medium},
+    {lbl:'Max',vnd:Math.round(maxBet*25),raw:maxBet}
+  ];
+  return lvls.map((l,i)=>{
+    const cls=i===0?'high':i===1?'low':i===2?'medium':'high';
+    const bc=i===0?'high':i===1?'lowb':i===2?'med':'high';
+    const valCls=i===0||i===3?'high':'medium';
+    return`<div class="bet-level ${bc}"><div class="lbl">${l.lbl}</div><div class="val ${valCls}">${l.vnd}k</div><div class="pct ${cls}">$${l.raw.toFixed(2)}</div></div>`;
+  }).join('');
+}
+
 function fcCard(g){
   const volCls=g.vl==='high'?'b-vol-h':g.vl==='low'?'b-vol-l':'b-vol-m';
-  const minVnd=fmtVnd(g.minBet);
-  const maxVnd=fmtVnd(g.maxBet);
   const isNew=(g.tags||[]).includes('NEW');
   const isHot=(g.tags||[]).includes('HOT');
   const isTop=(g.tags||[]).includes('TOP');
+  const rtpScore=Math.min(100,Math.round((g.rtp-90)/10*100));
+  const rtpCls=g.rtp>=97?'hot':g.rtp>=96?'warm':'cold';
   return`<div class="game" style="border-color:${isNew?'rgba(240,185,11,0.3)':isHot?'rgba(255,71,87,0.3)':'var(--border)'}">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
@@ -265,17 +282,13 @@ function fcCard(g){
           ${(g.tags||[]).includes('Mega Ways')?`<span class="badge b-wr">⚡ Mega</span>`:''}
           ${(g.tags||[]).includes('Bonus Buy')?`<span class="badge b-fc">🎯 Buy</span>`:''}
         </div>
-        <div class="bet-range-grid">
-          <div class="bet-range-item" style="border-color:rgba(0,214,143,.15)">
-            <div class="lbl">Min Bet</div>
-            <div class="val green">$${g.minBet.toFixed(2)}</div>
-            <div class="sub">${minVnd}K VND</div>
-          </div>
-          <div class="bet-range-item" style="border-color:rgba(240,185,11,.2)">
-            <div class="lbl">Max Bet</div>
-            <div class="val gold">$${g.maxBet.toFixed(2)}</div>
-            <div class="sub">${maxVnd}K VND</div>
-          </div>
+        <div class="play-now">
+          <span style="font-size:10px;color:var(--text3)">RTP Score</span>
+          <div class="play-bar-wrap"><div class="play-bar-fill ${rtpCls}" style="width:${rtpScore}%"></div></div>
+          <span class="play-label ${rtpCls}">${fmt(g.rtp)}%</span>
+        </div>
+        <div class="bet-levels">
+          ${fcBetLevels(g.minBet||0.10,g.maxBet||100)}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">
           ${(g.features||[]).slice(0,4).map(f=>`<span style="font-size:9px;color:var(--text2);background:var(--bg4);padding:2px 6px;border-radius:4px">${f}</span>`).join('')}
