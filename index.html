@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PG Slot Pro · Hot Game Intelligence</title>
-<meta name="description" content="PG Slot real-time analysis - Win Rate, RTP, Volatility, Demo Play">
+<title>Slot Intelligence · Game Analysis</title>
+<meta name="description" content="Real-time slot analysis - Win Rate, RTP, Volatility, Demo Play for PG Soft and Fa Chai">
 <meta name="theme-color" content="#070814">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#070814;--bg2:#0c0d22;--bg3:#11132e;--bg4:#161840;--border:#1b1d48;--border2:#2a2d5e;--text:#e4e5f5;--text2:#8a8db8;--text3:#4e5180;--gold:#f0b90b;--green:#00d68f;--red:#ff4757;--orange:#ff9f43;--blue:#4a7dff;--purple:#a55eea;--cyan:#00d2ff;--gradient:linear-gradient(135deg,#f0b90b,#d4a309);--radius:14px;--radius2:10px}
+:root{--bg:#070814;--bg2:#0c0d22;--bg3:#11132e;--bg4:#161840;--border:#1b1d48;--border2:#2a2d5e;--text:#e4e5f5;--text2:#8a8db8;--text3:#4e5180;--gold:#f0b90b;--green:#00d68f;--red:#ff4757;--orange:#ff9f43;--blue:#4a7dff;--purple:#a55eea;--cyan:#00d2ff;--fc:#ff6d2d;--gradient:linear-gradient(135deg,#f0b90b,#d4a309);--radius:14px;--radius2:10px}
 html{font-size:16px}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 .header{position:sticky;top:0;z-index:100;background:rgba(7,8,20,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
@@ -36,11 +36,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .stat.green .stat-num{color:var(--green)}
 .stat.blue .stat-num{color:var(--blue)}
 .stat.orange .stat-num{color:var(--orange)}
-.tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex-shrink:0;padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s}
 .tab:hover{border-color:var(--border2);color:var(--text)}
 .tab.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:600}
+.tab.fc-active{background:var(--fc);border-color:var(--fc);color:#000;font-weight:600}
+.tab.pg-divider{border-color:var(--gold);color:var(--gold);background:rgba(240,185,11,.08);font-weight:700;cursor:default;font-size:10px;letter-spacing:1px;padding:8px 12px}
+.tab.fc-divider{border-color:var(--fc);color:var(--fc);background:rgba(255,109,45,.08);font-weight:700;cursor:default;font-size:10px;letter-spacing:1px;padding:8px 12px}
 .game{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;transition:all .2s}
 .game:hover{border-color:var(--border2)}
 .game-row{display:flex;gap:12px}
@@ -60,7 +63,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .b-maxwin{background:rgba(255,159,67,.12);color:var(--orange)}
 .b-time{background:rgba(0,210,255,.12);color:var(--cyan)}
 .b-jackpot{background:rgba(255,71,87,.15);color:var(--red)}
-.b-fc{background:rgba(255,109,45,.15);color:var(--orange)}
+.b-fc{background:rgba(255,109,45,.15);color:var(--fc)}
 .b-new{background:rgba(240,185,11,.15);color:var(--gold)}
 .play-now{margin:8px 0;display:flex;align-items:center;gap:8px}
 .play-bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;position:relative}
@@ -94,14 +97,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bar-fill.low{background:var(--text2)}
 .bet-demo{display:block;margin-top:8px;padding:8px;border-radius:8px;background:var(--gradient);color:#000;font-size:11px;font-weight:700;text-decoration:none;cursor:pointer;text-align:center}
 .bet-demo.fc{background:linear-gradient(135deg,#ff6d2d,#ff9f43);color:#000}
-.bet-demo.fc2{background:linear-gradient(135deg,#8b5cf6,#a55eea);color:#fff}
 .vsec{margin-bottom:20px}
 .vhdr{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius2);margin-bottom:10px;font-size:13px;font-weight:600}
 .vhdr.low{background:linear-gradient(135deg,rgba(0,214,143,.08),transparent);border:1px solid rgba(0,214,143,.15);color:var(--green)}
 .vhdr.med{background:linear-gradient(135deg,rgba(240,185,11,.08),transparent);border:1px solid rgba(240,185,11,.15);color:var(--gold)}
 .vhdr.high{background:linear-gradient(135deg,rgba(255,71,87,.08),transparent);border:1px solid rgba(255,71,87,.15);color:var(--red)}
-.vhdr.fc{background:linear-gradient(135deg,rgba(255,109,45,.1),transparent);border:1px solid rgba(255,109,45,.2);color:var(--orange)}
-.vhdr.purple{background:linear-gradient(135deg,rgba(139,92,246,.1),transparent);border:1px solid rgba(139,92,246,.2);color:#a78bfa}
+.vhdr.fc{background:linear-gradient(135deg,rgba(255,109,45,.1),transparent);border:1px solid rgba(255,109,45,.2);color:var(--fc)}
 .vcnt{margin-left:auto;font-size:10px;opacity:.5}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
@@ -111,7 +112,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bottom-inner{max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
 .bottom-left,.bottom-right{font-size:11px;color:var(--text3)}
 @media(min-width:600px){.stats{gap:12px}.stat{padding:16px}.stat-num{font-size:28px}.game-img{width:90px;height:90px}}
-/* FC specific */
 .bet-range-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
 .bet-range-item{padding:10px;border-radius:8px;background:var(--bg3);text-align:center;border:1px solid transparent}
 .bet-range-item .lbl{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
@@ -120,33 +120,36 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .bet-range-item .val.orange{color:var(--orange)}
 .bet-range-item .val.green{color:var(--green)}
 .bet-range-item .sub{font-size:9px;color:var(--text2);margin-top:2px}
-.fc-rating{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--gold);background:rgba(240,185,11,.1);padding:2px 8px;border-radius:4px}
 </style>
 </head>
 <body>
 <div class="header"><div class="header-inner">
 <div class="header-logo">🎰</div>
-<div class="header-content"><div class="header-title">PG Slot Pro</div><div class="header-sub"><span style="color:var(--gold);font-weight:700;font-size:11px">Tool by Hữu Hạo</span> <span style="color:var(--text2)">·</span> <span style="color:var(--text2);font-size:10px">Intelligence</span></div></div>
+<div class="header-content"><div class="header-title">Slot Intelligence</div><div class="header-sub"><span style="color:var(--gold);font-weight:700;font-size:11px">Tool by Hữu Hạo</span> <span style="color:var(--text2)">·</span> <span style="color:var(--text2);font-size:10px">PG + FC Analysis</span></div></div>
 <div class="header-right"><span class="dot green" id="sdot"></span><span id="stxt" style="font-size:10px;color:var(--text3)">Live</span></div>
 </div></div>
 <div class="main">
 <div class="stats">
 <div class="stat"><div class="stat-num" id="tG">—</div><div class="stat-lbl">Games</div></div>
 <div class="stat gold"><div class="stat-num" id="aRTP">—</div><div class="stat-lbl">Avg RTP</div></div>
-<div class="stat green"><div class="stat-num" id="aWR">—</div><div class="stat-lbl">Avg B-WR</div></div>
-<div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top WR</div></div>
+<div class="stat green"><div class="stat-num" id="aWR">—</div><div class="stat-lbl">Avg Win Rate</div></div>
+<div class="stat orange"><div class="stat-num" id="tWR">—</div><div class="stat-lbl">Top Win Rate</div></div>
 </div>
 <div class="tabs" id="tabs">
-<div class="tab active" data-f="classic">🎮 PG Classic</div>
-<div class="tab" data-f="vote">🏆 Vote</div>
-<div class="tab" data-f="pp">🎰 PP Game</div>
+<!-- PG DIVIDER -->
+<div class="tab pg-divider">🎮 PG SOFT</div>
+<div class="tab active" data-f="pgclassic">🏆 PG Classic</div>
 <div class="tab" data-f="pgnew">🆕 PG New</div>
-<div class="tab" data-f="fc">🔥 FC Game</div>
+<div class="tab" data-f="pghot">🔥 PG Hot</div>
+<div class="tab" data-f="pgai">🤖 PG AI</div>
+<!-- FC DIVIDER -->
+<div class="tab fc-divider">🔥 FA CHAI</div>
+<div class="tab" data-f="fcall">🎮 FC Game</div>
 <div class="tab" data-f="fcnew">🆕 FC New</div>
 <div class="tab" data-f="fchot">🏆 FC Hot</div>
+<div class="tab" data-f="fcai">🧠 FC AI</div>
+<!-- GLOBAL -->
 <div class="tab" data-f="trending">📈 Trending</div>
-<div class="tab" data-f="ai">🤖 PG Ai</div>
-<div class="tab" data-f="ailocal">🧠 Ai Local</div>
 </div>
 <div id="root"><div class="loading"><div class="spinner"></div><div class="loading-txt">Đang tải dữ liệu…</div></div></div>
 </div>
@@ -162,6 +165,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 <script>
 const API='https://apislotget.replit.app/api/games';
+const FC_DATA_URL='fc-games.json';
 const BET_LEVELS=[
   {lbl:'L1',vnd:0.4},{lbl:'L2',vnd:0.8},{lbl:'L3',vnd:1.2},{lbl:'L4',vnd:1.6},{lbl:'L5',vnd:2.0},
   {lbl:'L6',vnd:2.4},{lbl:'L7',vnd:2.8},{lbl:'L8',vnd:3.2},{lbl:'L9',vnd:3.6},{lbl:'L10',vnd:4.0},
@@ -169,66 +173,21 @@ const BET_LEVELS=[
   {lbl:'L16',vnd:24},{lbl:'L17',vnd:28},{lbl:'L18',vnd:32},{lbl:'L19',vnd:36},{lbl:'L20',vnd:40},
   {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
-// === FA CHAI (FC) GAMES DATA ===
-const FC_GAMES=[
-  {id:"super-elements-2",title:"Super Elements 2",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x10,000",vol:"Medium/High",ways:3600,reels:5,date:"2026-04-29",rating:4.6,img:"https://slotranker.com/images/fa-chai-gaming/super-elements-2",prov:"Fa Chai",tags:["NEW","Cascading","Free Spins","Bonus Buy"],features:["Cascading wins","Golden Symbols → Wild","Multiplier x1536","Free Spins 10-50","Bonus Buy 60x"]},
-  {id:"poker-win-2",title:"Poker Win 2",rtp:96.5,minBet:0.60,maxBet:600,maxWin:"x15,000",vol:"High",ways:4096,reels:5,date:"2025-12-16",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/poker-win-2",prov:"Fa Chai",tags:["NEW","Cascading","Multiway"],features:["Symbol Swap","Free Spins","Cascading wins","Multiplier"]},
-  {id:"sword-of-king",title:"Sword of King",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x3,000",vol:"Medium/High",ways:243,reels:5,date:"2025-08-06",rating:3.8,img:"https://slotranker.com/images/fa-chai-gaming/sword-of-king",prov:"Fa Chai",tags:["NEW","Hold & Win"],features:["Hold and Win","Fixed Jackpots","Bonus Bet","Free Spins"]},
-  {id:"bad-rich-wolf",title:"Bad Rich Wolf",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x22,500",vol:"High",ways:5,reels:5,date:"2025",rating:4.7,img:"https://slotranker.com/images/fa-chai-gaming/bad-rich-wolf",prov:"Fa Chai",tags:["HOT","High Win"],features:["Stack","Wild Symbol","Multiplier","x22,500 max"]},
-  {id:"crazy-buffalo",title:"Crazy Buffalo",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x10,000",vol:"Medium/High",ways:1024,reels:5,date:"2022-12-13",rating:4.6,img:"https://slotranker.com/images/fa-chai-gaming/crazy-buffalo",prov:"Fa Chai",tags:["HOT","Bonus Buy"],features:["Buffalo Mechanics","Free Spins","Wild Multipliers","Bonus Buy"]},
-  {id:"treasures-of-odin",title:"Treasures of Odin",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x5,000",vol:"High",ways:30,reels:5,date:"2025-06-30",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/treasures-of-odin",prov:"Fa Chai",tags:["NEW"],features:["Cash Collector","Fixed Jackpots","Free Spins","Bonus Game"]},
-  {id:"night-market-2",title:"Night Market 2",rtp:96.5,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"High",ways:243,reels:5,date:"2022-09-22",rating:4.5,img:"https://slotranker.com/images/fa-chai-gaming/night-market-2",prov:"Fa Chai",tags:["HOT","Bonus Buy"],features:["Free Spins Mode Choosing","Bonus Buy","Multiplier","High Vol"]},
-  {id:"sugar-bang-bang-2",title:"Sugar Bang Bang 2",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x5,000",vol:"Medium",ways:1024,reels:6,date:"2025-04-09",rating:3.8,img:"https://slotranker.com/images/fa-chai-gaming/sugar-bang-bang-2",prov:"Fa Chai",tags:["NEW","Cascading"],features:["Cascading wins","Free Spins","Bonus Bet","Multiplier"]},
-  {id:"buffalo-ways-fa-chai-gaming",title:"Buffalo Ways",rtp:96.5,minBet:0.60,maxBet:600,maxWin:"x2,000",vol:"Medium",ways:243,reels:6,date:"2025-08-31",rating:3.7,img:"https://slotranker.com/images/fa-chai-gaming/buffalo-ways-fa-chai-gaming",prov:"Fa Chai",tags:["NEW"],features:["Expanding Symbols","Free Spins","Symbols Collection","Bonus Bet"]},
-  {id:"phoenix-fever",title:"Phoenix Fever",rtp:96.5,minBet:0.88,maxBet:88,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2025-07-13",rating:4.1,img:"https://slotranker.com/images/fa-chai-gaming/phoenix-fever",prov:"Fa Chai",tags:["NEW"],features:["Hold and Win","Respins","Sticky Symbols","Free Spins"]},
-  {id:"fortune-goddess",title:"Fortune Goddess",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2024-12-13",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/fortune-goddess",prov:"Fa Chai",tags:[],features:["Hold and Win","Cash Collector","Fixed Jackpots","Bonus Buy","Progressive Jackpot"]},
-  {id:"lucky-fortunes",title:"Lucky Fortunes ★4.9",rtp:96.5,minBet:0.88,maxBet:88,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2022-12-02",rating:4.9,img:"https://slotranker.com/images/fa-chai-gaming/lucky-fortunes",prov:"Fa Chai",tags:["TOP"],features:["Pick Objects","Fixed Jackpots","Free Spins","Bonus Game"]},
-  {id:"rich-man",title:"Rich Man ★4.8",rtp:96.5,minBet:0.80,maxBet:100,maxWin:"x10,000",vol:"Medium",ways:32400,reels:6,date:"2022-09-22",rating:4.8,img:"https://slotranker.com/images/fa-chai-gaming/rich-man",prov:"Fa Chai",tags:["TOP","Mega Ways"],features:["Avalanche","Cascading","Mystery Symbol","Free Spins Mode Choosing"]},
-  {id:"glory-of-rome",title:"Glory of Rome",rtp:96.52,minBet:0.50,maxBet:500,maxWin:"x1,550",vol:"Medium/High",ways:25,reels:5,date:"2022-11-23",rating:4.4,img:"https://slotranker.com/images/fa-chai-gaming/glory-of-rome",prov:"Fa Chai",tags:[],features:["Random Wilds","Free Spins","Medium/High Vol"]},
-  {id:"chilihuahua",title:"Chilihuahua",rtp:96.5,minBet:0.80,maxBet:1000,maxWin:"x10,000",vol:"Medium",ways:32400,reels:6,date:"2022-12-13",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chilihuahua",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Colossal Reels","Progressive Jackpot","Bonus Buy","Cascading"]},
-  {id:"golden-genie",title:"Golden Genie",rtp:96.5,minBet:0.80,maxBet:10,maxWin:"x10,000",vol:"Medium/High",ways:32400,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/golden-genie",prov:"Fa Chai",tags:["Mega Ways","Progressive"],features:["Megaways","Progressive Jackpot","Free Spins","Bonus Buy"]},
-  {id:"grand-blue",title:"Grand Blue",rtp:96.59,minBet:0.80,maxBet:100,maxWin:"x3,500",vol:"Medium",ways:32400,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/grand-blue",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Cascading","Free Spins","Bonus Buy"]},
-  {id:"queen-of-inca",title:"Queen of Inca",rtp:95.5,minBet:0.80,maxBet:1000,maxWin:"x5,000",vol:"High",ways:32400,reels:6,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/queen-of-inca",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Cash Collector","Free Spins","Bonus Buy"]},
-  {id:"legend-of-inca",title:"Legend of Inca",rtp:96.5,minBet:0.80,maxBet:1000,maxWin:"x1,500",vol:"Medium",ways:32400,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/legend-of-inca",prov:"Fa Chai",tags:["Mega Ways"],features:["Megaways","Hold and Win","Cash Collector","Bonus Buy"]},
-  {id:"merge-magic",title:"Merge Magic",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x1,000",vol:"Medium",ways:"Cluster",reels:6,date:"2022-09-14",rating:3.9,img:"https://slotranker.com/images/fa-chai-gaming/merge-magic",prov:"Fa Chai",tags:[],features:["Cluster Pays","Cascading","Bonus Buy","Colossal Reels"]},
-  {id:"jungle-bang-bang",title:"Jungle Bang Bang",rtp:96.5,minBet:0.90,maxBet:900,maxWin:"x12,000",vol:"High",ways:1024,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/jungle-bang-bang",prov:"Fa Chai",tags:[],features:["Symbol Swap","Free Spins","Cascading","Multiplier","Bonus Bet"]},
-  {id:"egypt-bonanza",title:"Egypt Bonanza",rtp:96.5,minBet:0.80,maxBet:150,maxWin:"x5,000",vol:"Medium/High",ways:"Pay Anywhere",reels:6,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/egypt-bonanza",prov:"Fa Chai",tags:[],features:["Colossal Reels","Respins","Bonus Buy","Pay Anywhere"]},
-  {id:"muscle-fortune-cat",title:"Muscle Fortune Cat",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x10,000",vol:"High",ways:4096,reels:6,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/muscle-fortune-cat",prov:"Fa Chai",tags:[],features:["4096 Ways","Cascading","Bonus Buy","Wild Multipliers"]},
-  {id:"d-j-boom-boom",title:"DJ Boom Boom",rtp:96.5,minBet:0.40,maxBet:100,maxWin:"x5,000",vol:"Medium/High",ways:3600,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/d-j-boom-boom",prov:"Fa Chai",tags:[],features:["Sticky Symbols","Free Spins","Bonus Buy","Wild Multipliers"]},
-  {id:"open-vault",title:"Open Vault",rtp:96.5,minBet:0.10,maxBet:100,maxWin:"x10,000",vol:"High",ways:2000,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/open-vault",prov:"Fa Chai",tags:["Bonus Buy"],features:["Bonus Wheel","Free Spins","Bonus Buy","Cascading"]},
-  {id:"robin-hood",title:"Robin Hood",rtp:96.5,minBet:0.10,maxBet:100,maxWin:"x10,000",vol:"High",ways:1,reels:3,date:"2022-11-17",rating:4.4,img:"https://slotranker.com/images/fa-chai-gaming/robin-hood",prov:"Fa Chai",tags:["High Vol"],features:["Bonus Game","Respins","Multiplier"]},
-  {id:"fortune-egg",title:"Fortune Egg",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x1,000",vol:"Medium",ways:50,reels:5,date:"2022-08-17",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/fortune-egg",prov:"Fa Chai",tags:[],features:["Hold and Win","Bonus Game","Free Spins","Bonus Buy"]},
-  {id:"zeus",title:"Zeus",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x1,000",vol:"Medium",ways:50,reels:5,date:"2022-09-03",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/zeus",prov:"Fa Chai",tags:[],features:["Pick Objects","Free Spins","Bonus Buy","Reelset Changing"]},
-  {id:"money-tree-dozer",title:"Money Tree Dozer",rtp:97,minBet:0.10,maxBet:100,maxWin:"x1,000",vol:"Medium",ways:5,reels:3,date:"2020",rating:3.6,img:"https://slotranker.com/images/fa-chai-gaming/money-tree-dozer",prov:"Fa Chai",tags:["RTP 97%"],features:["Bonus Game","Random Multiplier","RTP 97%"]},
-  {id:"circus-dozer",title:"Circus Dozer",rtp:97,minBet:0.10,maxBet:100,maxWin:"x2,000",vol:"Medium/High",ways:5,reels:5,date:"2022-08-13",rating:4.7,img:"https://slotranker.com/images/fa-chai-gaming/circus-dozer",prov:"Fa Chai",tags:["RTP 97%"],features:["Random Multiplier","5 Paylines","Medium/High Vol"]},
-  {id:"chinese-new-year-2",title:"Chinese New Year 2",rtp:96.5,minBet:0.60,maxBet:90,maxWin:"x16,800",vol:"High",ways:243,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chinese-new-year-2",prov:"Fa Chai",tags:["High Win"],features:["Free Spins Mode Choosing","Bonus Bet","High Vol"]},
-  {id:"chinese-new-year-moreways",title:"CNY MoreWays",rtp:96.5,minBet:0.60,maxBet:60,maxWin:"x1,536",vol:"Medium",ways:15625,reels:6,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/chinese-new-year-moreways",prov:"Fa Chai",tags:["Mega Ways"],features:["15625 Ways","Progressive Jackpot","Cascading","Bonus Buy"]},
-  {id:"hot-pot-party",title:"Hot Pot Party",rtp:96.45,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"Medium/High",ways:5,reels:3,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/hot-pot-party",prov:"Fa Chai",tags:[],features:["Level Up","Reelset Changing","Free Spins"]},
-  {id:"cyber-god-of-fortune",title:"Cyber God of Fortune",rtp:96.5,minBet:0.50,maxBet:50,maxWin:"x21,600",vol:"Medium",ways:243,reels:5,date:"2022",rating:4.0,img:"https://slotranker.com/images/fa-chai-gaming/cyber-god-of-fortune",prov:"Fa Chai",tags:["High Win"],features:["Free Spins","Multiplier","x21,600 max win"]},
-  {id:"da-le-men",title:"Da Le Men",rtp:96.3,minBet:0.50,maxBet:50,maxWin:"x2,500",vol:"Medium",ways:243,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/da-le-men",prov:"Fa Chai",tags:[],features:["Free Spins","Cascading","243 Ways"]},
-  {id:"fortune-money-boom",title:"Fortune Money Boom",rtp:96.5,minBet:0.88,maxBet:880,maxWin:"x1,000",vol:"Medium",ways:243,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/fortune-money-boom",prov:"Fa Chai",tags:[],features:["Cash Collector","Fixed Jackpots","Symbol Swap","Free Spins"]},
-  {id:"animal-racing",title:"Animal Racing",rtp:96.35,minBet:0.88,maxBet:440,maxWin:"x3,000",vol:"Medium",ways:88,reels:5,date:"2022",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/animal-racing",prov:"Fa Chai",tags:[],features:["Colossal Reels","Cascading","Stack","Random Wilds"]},
-  {id:"happy-duo-bao",title:"Happy Duo Bao",rtp:96.5,minBet:0.50,maxBet:75,maxWin:"x10,000",vol:"Medium",ways:5,reels:5,date:"2022-11-23",rating:4.3,img:"https://slotranker.com/images/fa-chai-gaming/happy-duo-bao",prov:"Fa Chai",tags:[],features:["Cascading","Pick Objects","Level Up","Reelset Changing"]},
-  {id:"magic-beans",title:"Magic Beans",rtp:96.38,minBet:0.50,maxBet:50,maxWin:"x10,000",vol:"Medium/High",ways:243,reels:5,date:"2022-12-02",rating:3.9,img:"https://slotranker.com/images/fa-chai-gaming/magic-beans",prov:"Fa Chai",tags:[],features:["Free Spins","243 Ways","Medium/High Vol"]},
-  {id:"super-elements",title:"Super Elements",rtp:96.5,minBet:0.10,maxBet:50,maxWin:"x2,000",vol:"Medium",ways:2000,reels:5,date:"2023-10-16",rating:3.5,img:"https://slotranker.com/images/fa-chai-gaming/super-elements",prov:"Fa Chai",tags:[],features:["Cascading","Bonus Buy","Free Spins"]},
-  {id:"cowboys",title:"Cowboys ★4.9",rtp:96.44,minBet:0.30,maxBet:900,maxWin:"x300",vol:"Low",ways:15,reels:5,date:"2022-09-02",rating:4.9,img:"https://slotranker.com/images/fa-chai-gaming/cowboys",prov:"Fa Chai",tags:["TOP","Low Vol"],features:["Pick Objects","Free Spins","Cascading","Low Vol"]},
-];
-let games=[],filter='classic',cd=10,prevVotes={};
+let pgGames=[],fcGames=[],filter='pgclassic',cd=10,prevVotes={};
 const $=id=>document.getElementById(id);
 
 function bayes(wr,n){return(wr*n+2500)/(n+50)}
 function fmt(v){return typeof v==='number'?v.toFixed(2):v}
 function fmt1(v){return typeof v==='number'?v.toFixed(1):v}
-function fmtVnd(usd){return Math.round(usd*25)} // $1 ≈ 25k VND
+function fmtVnd(usd){return Math.round(usd*25)}
 
-// === Phan tich game — DU LIEU THAT 100% ===
-async function load(){
+// === LOAD PG DATA FROM API ===
+async function loadPG(){
   try{
     const r=await fetch(API+'?_='+Date.now());
     const d=await r.json();
     const raw=d.games||[];
-
-    games=raw.map((g,i)=>{
+    pgGames=raw.map((g,i)=>{
       const p=g.plus_count||0,m=g.minus_count||0,t=p+m;
       const wr=t>0?p/t*100:0;
       const bw=t>0?bayes(wr,t):0;
@@ -236,70 +195,65 @@ async function load(){
       const rs=(g.details&&g.details.rtp)||'';
       const rm=rs.match(/([\d.]+)/);
       if(rm)rtp=parseFloat(rm[1]);
-
       const vol=(g.details&&g.details.volatility)||'Medium';
       const vl=vol.toLowerCase().includes('low')?'low':vol.toLowerCase().includes('hig')?'high':'medium';
-
       const prev=prevVotes[g.id||i]||t;
       const delta=t-prev;
       prevVotes[g.id||i]=t;
-
       const vc=g.view_count||0;
       const conf=Math.min(t/200,1);
       const rtpSc=Math.max(0,Math.min(1,(rtp-90)/10));
       const volSc={low:0.8,medium:1.0,high:0.6}[vl]||0.6;
-
       const isTrending=delta>0;
       const trendStrength=delta>5?delta/10:0;
       const isPopular=vc>10;
       const popScore=Math.min(vc/100,1);
-
       const score=(bw/100*0.30)+(rtpSc*0.20)+(volSc*0.15)+(conf*0.15)+(trendStrength*0.10)+(popScore*0.10);
-
       const playScore=Math.min(100,Math.round(
         (bw/100*35)+(isTrending?25:delta>-10?10:0)+(rtpSc*15)+(conf*15)+(popScore*10)
       ));
-
       return{
-        title:g.title||'Unknown',prov:g.provider||'',
+        id:g.id||i,title:g.title||'Unknown',prov:g.provider||'',
         img:g.image_url||'',demo:g.demo_link||'',
         rtp,wr,bw,n:t,vol,vl,score,
         maxWin:(g.details&&g.details.maxWin)||'',
-        paylines:(g.details&&g.details.paylines)||'',
-        reels:(g.details&&g.details.reels)||'',
-        isTrending,delta,trendStrength,isPopular,vc,
-        playScore,
-        idx:i
+        isTrending,delta,isPopular,vc,
+        playScore,type:'pg',idx:i
       };
     });
-
-    const now=new Date();
-    const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
-    $('sdot').className='dot green';
-    $('stxt').textContent=vnNow.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-    render();
-    $('vnTime').textContent=vnNow.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){
-    $('sdot').className='dot red';
-    $('stxt').textContent='Error';
-  }
+  }catch(e){console.error('PG API error',e)}
 }
 
+// === LOAD FC DATA ===
+async function loadFC(){
+  try{
+    const r=await fetch(FC_DATA_URL+'?_='+Date.now());
+    const d=await r.json();
+    fcGames=(d.games||[]).map((g,i)=>({
+      ...g,
+      prov:'Fa Chai',
+      type:'fc',
+      idx:i,
+      vl:g.vol.toLowerCase().includes('high')?'high':g.vol.toLowerCase().includes('low')?'low':'medium',
+      demo:`https://web.fachaigaming.com/game/${g.fcid||22098}/en`
+    }));
+  }catch(e){console.error('FC load error',e)}
+}
+
+// === RENDER FC CARDS ===
 function fcCard(g){
-  const volCls=g.vol.toLowerCase().includes('high')?'b-vol-h':g.vol.toLowerCase().includes('low')?'b-vol-l':'b-vol-m';
-  const barPct=g.vol.toLowerCase().includes('high')?85:g.vol.toLowerCase().includes('low')?30:55;
+  const volCls=g.vl==='high'?'b-vol-h':g.vl==='low'?'b-vol-l':'b-vol-m';
   const minVnd=fmtVnd(g.minBet);
   const maxVnd=fmtVnd(g.maxBet);
-  const isNew=g.tags.includes("NEW");
-  const isHot=g.tags.includes("HOT");
-  const isTop=g.tags.includes("TOP");
-
+  const isNew=(g.tags||[]).includes('NEW');
+  const isHot=(g.tags||[]).includes('HOT');
+  const isTop=(g.tags||[]).includes('TOP');
   return`<div class="game" style="border-color:${isNew?'rgba(240,185,11,0.3)':isHot?'rgba(255,71,87,0.3)':'var(--border)'}">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
         <div class="game-title">${g.title}</div>
-        <div class="game-provider">${g.prov} · ${g.ways} ways · ${g.reels} reels</div>
+        <div class="game-provider">${g.prov} · ${g.ways||''} ways · ${g.reels||''} reels</div>
         <div class="badges">
           <span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>
           <span class="badge ${volCls}">${g.vol}</span>
@@ -308,12 +262,9 @@ function fcCard(g){
           ${isHot?`<span class="badge b-time">🔥 Hot</span>`:''}
           ${isTop?`<span class="badge b-jackpot">🏆 Top</span>`:''}
           ${g.rating?`<span class="badge b-votes">★ ${g.rating}</span>`:''}
-          ${g.tags.includes("Mega Ways")?`<span class="badge b-wr">⚡ Mega</span>`:''}
-          ${g.tags.includes("RTP 97%")?`<span class="badge" style="background:rgba(0,214,143,.2);color:var(--green)">💰 RTP 97%</span>`:''}
-          ${g.tags.includes("Bonus Buy")?`<span class="badge" style="background:rgba(255,159,67,.12);color:var(--orange)">🎯 Buy</span>`:''}
-          ${g.tags.includes("Progressive")?`<span class="badge b-jackpot">🏆 Jackpot</span>`:''}
+          ${(g.tags||[]).includes('Mega Ways')?`<span class="badge b-wr">⚡ Mega</span>`:''}
+          ${(g.tags||[]).includes('Bonus Buy')?`<span class="badge b-fc">🎯 Buy</span>`:''}
         </div>
-
         <div class="bet-range-grid">
           <div class="bet-range-item" style="border-color:rgba(0,214,143,.15)">
             <div class="lbl">Min Bet</div>
@@ -326,83 +277,37 @@ function fcCard(g){
             <div class="sub">${maxVnd}K VND</div>
           </div>
         </div>
-
         <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">
-          ${g.features.slice(0,4).map(f=>`<span style="font-size:9px;color:var(--text2);background:var(--bg4);padding:2px 6px;border-radius:4px">${f}</span>`).join('')}
+          ${(g.features||[]).slice(0,4).map(f=>`<span style="font-size:9px;color:var(--text2);background:var(--bg4);padding:2px 6px;border-radius:4px">${f}</span>`).join('')}
         </div>
-
-        <a class="bet-demo fc" href="https://web.fachaigaming.com/game/${g.id==='buffalo-ways-fa-chai-gaming'?'22088':g.id==='super-elements-2'?'22098':g.id==='super-elements'?'22055':g.id==='bad-rich-wolf'?'22071':g.id==='poker-win-2'?'22111':g.id==='sword-of-king'?'22073':g.id==='crazy-buffalo'?'22056':g.id==='treasures-of-odin'?'22078':g.id==='night-market-2'?'22063':g.id==='sugar-bang-bang-2'?'22070':g.id==='buffalo-ways'?'22088':g.id==='phoenix-fever'?'22076':g.id==='fortune-goddess'?'22079':g.id==='chilihuahua'?'22066':g.id==='golden-genie'?'22067':g.id==='grand-blue'?'22080':g.id==='queen-of-inca'?'22082':g.id==='legend-of-inca'?'22083':g.id==='merge-magic'?'22064':g.id==='jungle-bang-bang'?'22065':g.id==='egypt-bonanza'?'22069':g.id==='muscle-fortune-cat'?'22068':g.id==='dj-boom-boom'?'22072':g.id==='open-vault'?'22124':g.id==='robin-hood'?'22089':g.id==='fortune-egg'?'22058':g.id==='zeus'?'22059':g.id==='money-tree-dozer'?'22090':g.id==='circus-dozer'?'22092':g.id==='chinese-new-year-2'?'22062':g.id==='chinese-new-year-moreways'?'22091':g.id==='hot-pot-party'?'22060':g.id==='cyber-god-of-fortune'?'22075':g.id==='da-le-men'?'22074':g.id==='fortune-money-boom'?'22061':g.id==='animal-racing'?'22112':g.id==='happy-duo-bao'?'22086':g.id==='magic-beans'?'22084':g.id==='cowboys'?'22087':g.id==='lucky-fortunes'?'22085':g.id==='rich-man'?'22057':g.id==='glory-of-rome'?'22081':g.id==='sugar-bang-bang-2'?'22070':'22098'}/en" target="_blank">▶ Demo FC</a>
+        <a class="bet-demo fc" href="${g.demo}" target="_blank">▶ Demo ${g.prov.split(' ')[0]}</a>
       </div>
     </div>
   </div>`;
 }
 
-function renderFC(games,title,icon){
-  const volOrder={high:[],'medium/high':[],medium:[],'medium/low':[],low:[]};
+function renderFCVol(games){
+  const groups={};
   games.forEach(g=>{
-    const v=g.vol.toLowerCase();
-    if(v.includes('high'))volOrder['high'].push(g);
-    else if(v.includes('medium'))volOrder['medium'].push(g);
-    else volOrder['low'].push(g);
+    const v=g.vol.toLowerCase().includes('high')?'high':g.vol.toLowerCase().includes('low')?'low':'medium';
+    if(!groups[v])groups[v]=[];
+    groups[v].push(g);
   });
   let html='';
-  if(volOrder.high.length){
-    html+=`<div class="vsec"><div class="vhdr high">🔴 High Volatility<span class="vcnt">${volOrder.high.length} games</span></div>${volOrder.high.map(g=>fcCard(g)).join('')}</div>`;
-  }
-  if(volOrder['medium'].length){
-    html+=`<div class="vsec"><div class="vhdr med">🟡 Medium Volatility<span class="vcnt">${volOrder.medium.length} games</span></div>${volOrder.medium.map(g=>fcCard(g)).join('')}</div>`;
-  }
-  if(volOrder.low.length){
-    html+=`<div class="vsec"><div class="vhdr low">🟢 Low Volatility<span class="vcnt">${volOrder.low.length} games</span></div>${volOrder.low.map(g=>fcCard(g)).join('')}</div>`;
-  }
+  if(groups.high&&groups.high.length)html+=`<div class="vsec"><div class="vhdr high">🔴 High Volatility<span class="vcnt">${groups.high.length} games</span></div>${groups.high.map(g=>fcCard(g)).join('')}</div>`;
+  if(groups.medium&&groups.medium.length)html+=`<div class="vsec"><div class="vhdr med">🟡 Medium Volatility<span class="vcnt">${groups.medium.length} games</span></div>${groups.medium.map(g=>fcCard(g)).join('')}</div>`;
+  if(groups.low&&groups.low.length)html+=`<div class="vsec"><div class="vhdr low">🟢 Low Volatility<span class="vcnt">${groups.low.length} games</span></div>${groups.low.map(g=>fcCard(g)).join('')}</div>`;
   return html;
 }
 
-function filtered(){
-  let a=[...games];
-  switch(filter){
-    case 'hot': a=a.filter(g=>g.playScore>=60||g.isTrending);break;
-    case 'top': a.sort((a,b)=>b.score-a.score).slice(0,30);break;
-    case 'low': a=a.filter(g=>g.vl==='low');break;
-    case 'medium': a=a.filter(g=>g.vl==='medium');break;
-    case 'high': a=a.filter(g=>g.vl==='high');break;
-    case 'vote': a=a.filter(g=>g.n>0);break;
-    case 'classic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.playScore-a.playScore);break;
-    case 'pp': a=a.filter(g=>g.n>=10&&g.prov.includes('Pragmatic')).sort((a,b)=>b.playScore-a.playScore);break;
-    case 'pgnew': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.idx-a.idx).slice(0,20);break;
-    case 'ai': a=a.filter(g=>g.n>=30).sort((a,b)=>(b.bw*Math.min(b.n/100,1)*(b.rtp>=96.5?1.2:1))-(a.bw*Math.min(a.n/100,1)*(a.rtp>=96.5?1.2:1))).slice(0,20);break;
-    case 'ailocal': {
-      const good=a.filter(g=>g.rtp>=96&&g.n>=20);
-      good.forEach(g=>{
-        const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1),trendB=g.isTrending?.15:0;
-        g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(trendB*.10);
-        g.aiReasons=[];
-        if(g.bw>=85)g.aiReasons.push('🔥 WR cao');
-        if(g.rtp>=96.8)g.aiReasons.push('💰 RTP cao');
-        if(g.vl==='medium')g.aiReasons.push('⚖️ Vol can bang');
-        if(g.n>=500)g.aiReasons.push('📊 Du lieu lon');
-        if(g.n>=100)g.aiReasons.push('✅ Sample du');
-        if(g.isTrending)g.aiReasons.push('📈 Dang hot (+'+g.delta+' votes)');
-      });
-      a=good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);break;
-    }
-    case 'winrate': a.sort((a,b)=>b.bw-a.bw).slice(0,30);break;
-    case 'trending': a.sort((a,b)=>b.delta-a.delta).slice(0,30);break;
-    // FC cases are handled separately in render()
-  }
-  a.sort((a,b)=>b.score-a.score);
-  return a;
-}
-
-function card(g){
+// === PG CARD ===
+function pgCard(g,isAi){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
-  const barPct=g.vl==='low'?30:g.vl==='medium'?55:85;
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
   const blDef=BET_LEVELS[0],blMin=BET_LEVELS[9],blMed=BET_LEVELS[19],blMax=BET_LEVELS[25];
   const wrPct=Math.min(100,Math.round(g.bw));
   const wrCls=g.bw>=70?'high':g.bw>=45?'medium':'low';
-
-  return`<div class="game">
+  return`<div class="game" style="${isAi?'border-color:rgba(240,185,11,0.3)':''}">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
@@ -416,33 +321,27 @@ function card(g){
           ${g.isTrending?`<span class="badge b-time">📈 +${g.delta} votes</span>`:''}
           ${g.vc>10?`<span class="badge b-votes">👁 ${g.vc}</span>`:''}
         </div>
-
         <div class="play-now">
           <span style="font-size:10px;color:var(--text3)">Win Rate</span>
           <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
           <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
         </div>
-
         <div class="bet-levels">
           <div class="bet-level ${wrCls}"><div class="lbl">Default</div><div class="val high">${blDef.vnd}k</div><div class="pct ${wrCls}">${blDef.lbl}</div></div>
           <div class="bet-level ${wrCls}"><div class="lbl">Min</div><div class="val medium">${blMin.vnd}k</div><div class="pct ${wrCls}">${blMin.lbl}</div></div>
           <div class="bet-level ${wrCls}"><div class="lbl">Medium</div><div class="val medium">${blMed.vnd}k</div><div class="pct ${wrCls}">${blMed.lbl}</div></div>
           <div class="bet-level ${wrCls}"><div class="lbl">Max</div><div class="val high">${blMax.vnd}k</div><div class="pct ${wrCls}">${blMax.lbl}</div></div>
         </div>
-
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Choi Demo</a>
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo PG</a>
       </div>
     </div>
   </div>`;
 }
 
-function aiCard(g,isLocal){
+function pgAiCard(g){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
   const wrPct=Math.min(100,Math.round(g.bw));
-  const blDef=BET_LEVELS[0],blMin=BET_LEVELS[9],blMed=BET_LEVELS[19],blMax=BET_LEVELS[25];
-  const wrCls=g.bw>=70?'high':g.bw>=45?'medium':'low';
-
   return`<div class="game" style="border-color:rgba(240,185,11,0.3)">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
@@ -450,128 +349,162 @@ function aiCard(g,isLocal){
         <div class="game-title">${g.title}</div>
         <div class="game-provider">${g.prov} · ${g.n} votes</div>
         <div class="badges">
-          ${isLocal?`<span class="badge b-wr" style="background:rgba(240,185,11,.2);color:var(--gold)">🧠 ${fmt(g.aiScore)}</span>`:''}
           ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
-          ${g.n>0?`<span class="badge b-wr">WR ${fmt1(g.bw)}%</span>`:''}
+          <span class="badge b-wr">WR ${fmt1(g.bw)}%</span>
           <span class="badge ${volCls}">${g.vol}</span>
           ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
         </div>
-
         <div class="play-now">
           <span style="font-size:10px;color:var(--text3)">Win Rate</span>
           <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
           <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
         </div>
-
-        ${isLocal&&g.aiReasons?`<div style="margin:6px 0;padding:8px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px">
-          <strong style="color:var(--gold)">🧠 AI phan tich:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
+        ${g.aiReasons?`<div style="margin:6px 0;padding:8px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px">
+          <strong style="color:var(--gold)">🧠 AI phân tích:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
         </div>`:''}
-
-        <div class="bet-levels">
-          <div class="bet-level ${wrCls}"><div class="lbl">Default</div><div class="val high">${blDef.vnd}k</div><div class="pct ${wrCls}">${blDef.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Min</div><div class="val medium">${blMin.vnd}k</div><div class="pct ${wrCls}">${blMin.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Medium</div><div class="val medium">${blMed.vnd}k</div><div class="pct ${wrCls}">${blMed.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Max</div><div class="val high">${blMax.vnd}k</div><div class="pct ${wrCls}">${blMax.lbl}</div></div>
-        </div>
-
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Choi Demo</a>
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo PG</a>
       </div>
     </div>
   </div>`;
 }
 
+// === FC AI ANALYSIS ===
+function fcAiAnalyze(list){
+  return list.filter(g=>g.rtp>=96).map(g=>{
+    const wrS=Math.min(g.rtp/100,1);
+    const rtpS=Math.max(0,(g.rtp-95)/5);
+    const volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5;
+    const cnf=0.5;
+    const trd=0.3;
+    g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(.10);
+    g.aiReasons=[];
+    if(g.rtp>=96.8)g.aiReasons.push('💰 RTP cao');
+    if(g.rtp>=97)g.aiReasons.push('🔥 RTP cực cao');
+    if(g.vl==='medium')g.aiReasons.push('⚖️ Vol cân bằng');
+    if((g.tags||[]).includes('HOT'))g.aiReasons.push('🔥 Game hot');
+    if(g.rating>=4.5)g.aiReasons.push('⭐ Rating cao');
+    return g;
+  }).sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);
+}
+
+// === FILTER + RENDER ===
 function render(){
-  // For FC tabs, render embedded data
-  if(filter==='fc'||filter==='fcnew'||filter==='fchot'){
-    let fcGames=[...FC_GAMES];
-    if(filter==='fcnew'){
-      fcGames=fcGames.filter(g=>g.tags.includes("NEW")).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    }else if(filter==='fchot'){
-      fcGames=fcGames.filter(g=>g.tags.includes("HOT")||g.tags.includes("TOP")||g.rating>=4.3).sort((a,b)=>b.rating-a.rating);
-    }
-    const totalFc=FC_GAMES.length;
-    const avgRtp=FC_GAMES.reduce((s,g)=>s+g.rtp,0)/totalFc;
-    $('tG').textContent=totalFc;
-    $('aRTP').textContent=fmt1(avgRtp)+'%';
+  // --- FC TABS ---
+  if(filter==='fcall'||filter==='fcnew'||filter==='fchot'||filter==='fcai'){
+    let list=[...fcGames];
+    if(filter==='fcnew') list=list.filter(g=>(g.tags||[]).includes('NEW'));
+    else if(filter==='fchot') list=list.filter(g=>(g.tags||[]).includes('HOT')||(g.tags||[]).includes('TOP')||g.rating>=4.3).sort((a,b)=>b.rating-a.rating);
+    else if(filter==='fcai') list=fcAiAnalyze(list);
+
+    $('tG').textContent=fcGames.length;
+    const avg=fcGames.reduce((s,g)=>s+g.rtp,0)/fcGames.length;
+    $('aRTP').textContent=fmt1(avg)+'%';
     $('aWR').textContent='—';
-    $('tWR').textContent=Math.max(...FC_GAMES.map(g=>g.rtp)).toFixed(1)+'%';
-    const icon=filter==='fcnew'?'🆕':filter==='fchot'?'🏆':'🔥';
-    const title=filter==='fcnew'?'FC Games Mới Nhất':filter==='fchot'?'FC Games Hot Nhất':'Tất Cả Game Fa Chai';
+    $('tWR').textContent=Math.max(...fcGames.map(g=>g.rtp)).toFixed(1)+'%';
+    
+    const icon=filter==='fcnew'?'🆕':filter==='fchot'?'🏆':filter==='fcai'?'🧠':'🔥';
     const infoBar=`<div style="margin-bottom:12px;padding:12px;background:rgba(255,109,45,.06);border:1px solid rgba(255,109,45,.15);border-radius:12px;font-size:12px;line-height:1.5">
-      <strong style="color:var(--orange)">${icon} FA CHAI GAMING — ${totalFc} games</strong><br>
-      <span style="color:var(--text2)">RTP trung bình ${fmt1(avgRtp)}% · Từ $0.10 đến $1,000 mỗi spin · Có Bonus Buy, Cascading, Megaways</span>
+      <strong style="color:var(--fc)">${icon} FA CHAI GAMING — ${list.length} games</strong><br>
+      <span style="color:var(--text2)">RTP trung bình ${fmt1(avg)}% · Từ $0.10 đến $1,000 mỗi spin</span>
     </div>`;
-    $('root').innerHTML=infoBar+renderFC(fcGames,title,icon);
+    
+    if(filter==='fcai'){
+      $('root').innerHTML=infoBar+list.map(g=>fcCard(g)).join('');
+    }else{
+      $('root').innerHTML=infoBar+renderFCVol(list);
+    }
     return;
   }
 
-  const v=games.filter(g=>g.n>0);
-  $('tG').textContent=games.length;
-  const ra=games.filter(g=>g.rtp>0).map(g=>g.rtp);
+  // --- PG TABS ---
+  let a=[...pgGames];
+  switch(filter){
+    case 'pgclassic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'pgnew': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.idx-a.idx).slice(0,20);break;
+    case 'pghot': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))&&(g.playScore>=60||g.isTrending)).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'pgai': {
+      const good=a.filter(g=>g.rtp>=96&&g.n>=20&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft')));
+      good.forEach(g=>{
+        const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1),trendB=g.isTrending?.15:0;
+        g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(trendB*.10);
+        g.aiReasons=[];
+        if(g.bw>=85)g.aiReasons.push('🔥 WR cao');
+        if(g.rtp>=96.8)g.aiReasons.push('💰 RTP cao');
+        if(g.vl==='medium')g.aiReasons.push('⚖️ Vol cân bằng');
+        if(g.n>=500)g.aiReasons.push('📊 Dữ liệu lớn');
+        if(g.n>=100)g.aiReasons.push('✅ Sample đủ');
+        if(g.isTrending)g.aiReasons.push('📈 Đang hot (+'+g.delta+' votes)');
+      });
+      a=good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);
+      break;
+    }
+    case 'trending': a=a.filter(g=>g.n>=10).sort((a,b)=>b.delta-a.delta).slice(0,30);break;
+  }
+  a.sort((a,b)=>b.score-a.score);
+
+  const v=pgGames.filter(g=>g.n>0);
+  $('tG').textContent=pgGames.length;
+  const ra=pgGames.filter(g=>g.rtp>0).map(g=>g.rtp);
   $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
   $('aWR').textContent=v.length?fmt1(v.reduce((a,b)=>a+b.wr,0)/v.length)+'%':'—';
   $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.bw)))+'%':'—';
-  $('gc').textContent=games.length;
+  $('gc').textContent=pgGames.length;
 
-  const a=filtered();
   const rt=$('root');
-  if(!a.length){rt.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">📭 Khong co game</div>';return;}
-
-  if(filter==='vote'){
-    const gr={low:[],medium:[],high:[]};
-    a.forEach(g=>{if(gr[g.vl])gr[g.vl].push(g)});
-    const sec=(vl,list)=>{
-      if(!list.length)return'';
-      const L={low:{i:'🟢',t:'Low Vol',c:'low'},medium:{i:'🟡',t:'Medium Vol',c:'med'},high:{i:'🔴',t:'High Vol',c:'high'}}[vl];
-      return`<div class="vsec"><div class="vhdr ${L.c}">${L.i} ${L.t}<span class="vcnt">${list.length} games</span></div>${list.map(x=>card(x)).join('')}</div>`;
-    };
-    rt.innerHTML=sec('medium',gr.medium)+sec('low',gr.low)+sec('high',gr.high);
-  }else if(filter==='classic'){
+  if(filter==='pgclassic'){
     const trending=a.filter(g=>g.isTrending).sort((a,b)=>b.delta-a.delta);
     const featured=[...a].sort((a,b)=>b.score-a.score).slice(0,3);
     const highWR=[...a].sort((a,b)=>b.bw-a.bw).slice(0,10);
     rt.innerHTML=`
       ${trending.length?`<div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Dang len <span class="vcnt">${trending.length} games</span></div>
-        ${trending.slice(0,5).map(card).join('')}
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(255,71,87,.1),transparent);border:1px solid rgba(255,71,87,.2);color:var(--red)">🔥 Đang lên <span class="vcnt">${trending.length} games</span></div>
+        ${trending.slice(0,5).map(g=>pgCard(g)).join('')}
       </div>`:''}
       <div class="vsec">
-        <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Feature Games <span class="vcnt">Top 3</span></div>
-        ${featured.map(card).join('')}
+        <div class="vhdr" style="background:linear-gradient(135deg,rgba(240,185,11,.1),transparent);border:1px solid rgba(240,185,11,.2);color:var(--gold)">🎯 Featured Games <span class="vcnt">Top 3</span></div>
+        ${featured.map(g=>pgCard(g)).join('')}
       </div>
       <div class="vsec">
         <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 High Winrate <span class="vcnt">Top 10</span></div>
-        ${highWR.map(card).join('')}
+        ${highWR.map(g=>pgCard(g)).join('')}
       </div>`;
-  }else if(filter==='ailocal'||filter==='ai'){
+  }else if(filter==='pgai'){
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
-      <strong style="color:var(--gold)">${filter==='ailocal'?'🧠 AI Local - Thuat toan rieng':'🤖 PG Ai - De xuat tu du lieu'}</strong><br>
-      <span style="color:var(--text2)">${filter==='ailocal'?'Phan tich Bayesian WR + RTP + Vol + Trending':'Dua tren WR + votes + RTP.'}</span>
-    </div>${a.map(g=>aiCard(g,filter==='ailocal')).join('')}`;
+      <strong style="color:var(--gold)">🤖 PG AI - Đề xuất từ dữ liệu</strong><br>
+      <span style="color:var(--text2)">Phân tích Bayesian WR + RTP + Vol + Confidence</span>
+    </div>${a.map(g=>pgAiCard(g)).join('')}`;
   }else{
-    rt.innerHTML=a.slice(0,50).map(card).join('');
+    rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
+      <strong style="color:var(--gold)">🎮 PG SOFT — ${a.length} games</strong><br>
+      <span style="color:var(--text2)">Dữ liệu vote real-time từ cộng đồng</span>
+    </div>${a.slice(0,50).map(g=>pgCard(g)).join('')}`;
   }
 }
 
+// === TABS CLICK ===
 $('tabs').addEventListener('click',e=>{
   const t=e.target.closest('.tab');
-  if(!t)return;
-  $('tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
+  if(!t||t.classList.contains('pg-divider')||t.classList.contains('fc-divider'))return;
+  $('tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active','fc-active'));
+  if(t.dataset.f.startsWith('fc')) t.classList.add('fc-active');
+  else t.classList.add('active');
   filter=t.dataset.f;
-  // Don't fetch API for FC tabs
-  if(filter==='fc'||filter==='fcnew'||filter==='fchot'){
-    render();
-    return;
-  }
   render();
-  if(games.length>0)render();
-  else load();
 });
 
-setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;load();}},1000);
+// === AUTO LOAD ===
+async function init(){
+  await Promise.all([loadPG(),loadFC()]);
+  const now=new Date();
+  const vnNow=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
+  $('sdot').className='dot green';
+  $('stxt').textContent=vnNow.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+  render();
+}
+
+setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;loadPG();if(!filter.startsWith('fc'))render();}},1000);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-load();
+init();
 </script>
 </body>
 </html>
