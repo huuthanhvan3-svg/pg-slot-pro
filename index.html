@@ -215,6 +215,7 @@ async function loadPG(){
       return{
         id:g.id||i,title:g.title||'Unknown',prov:g.provider||'',
         img:g.image_url||'',demo:g.demo_link||'',
+        details:g.details||{},
         rtp,wr,bw,n:t,vol,vl,score,
         maxWin:(g.details&&g.details.maxWin)||'',
         isTrending,delta,isPopular,vc,
@@ -312,6 +313,20 @@ function renderFCVol(games){
   if(groups.medium&&groups.medium.length)html+=`<div class="vsec"><div class="vhdr med">🟡 Medium Volatility<span class="vcnt">${groups.medium.length} games</span></div>${groups.medium.map(g=>fcCard(g)).join('')}</div>`;
   if(groups.low&&groups.low.length)html+=`<div class="vsec"><div class="vhdr low">🟢 Low Volatility<span class="vcnt">${groups.low.length} games</span></div>${groups.low.map(g=>fcCard(g)).join('')}</div>`;
   return html;
+}
+
+// === PG VOLATILITY HINT ===
+function pgVolHint(vol){
+  const v=vol.toLowerCase();
+  if(v.includes('high')) return {icon:'🔴',txt:'Hiếm',pct:20};
+  if(v.includes('low')) return {icon:'🟢',txt:'Thường xuyên',pct:75};
+  return {icon:'🟡',txt:'Trung bình',pct:50};
+}
+function pgBonusFreq(vol){
+  const v=vol.toLowerCase();
+  if(v.includes('high')) return '~1/200 spins';
+  if(v.includes('low')) return '~1/50 spins';
+  return '~1/100 spins';
 }
 
 // === PG BET LEVELS (per-game) ===
@@ -412,18 +427,21 @@ function pgCard(g,isAi){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
   const scorePct=Math.min(100,Math.round((g.score||0.5)*100));
+  const bh=pgVolHint(g.vol);
+  const bf=pgBonusFreq(g.vol);
   return`<div class="game" data-pg-idx="${g.idx}" style="${isAi?'border-color:rgba(240,185,11,0.3)':''}">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
         <div class="game-title">${g.title}</div>
-        <div class="game-provider">${g.prov} · ${g.n} votes</div>
+        <div class="game-provider">${g.prov} · ${g.details&&g.details.releaseDate?g.details.releaseDate:''} · ${g.n} lượt</div>
         <div class="badges">
           ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
           ${g.n>0?`<span class="badge b-wr">WR ${fmt1(g.bw)}%</span>`:''}
           <span class="badge ${volCls}">${g.vol}</span>
           ${g.maxWin?`<span class="badge b-maxwin">${g.maxWin}</span>`:''}
-          ${g.isTrending?`<span class="badge b-time">📈 +${g.delta} votes</span>`:''}
+          ${g.details&&g.details.paylines?`<span class="badge b-wr">Dòng ${g.details.paylines}</span>`:''}
+          ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
           ${g.vc>10?`<span class="badge b-votes">👁 ${g.vc}</span>`:''}
         </div>
         <div class="play-now">
@@ -436,10 +454,14 @@ function pgCard(g,isAi){
           <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
           <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
         </div>
+        <div style="display:flex;gap:8px;margin:8px 0;font-size:10px;color:var(--text2)">
+          <span>${bh.icon} Bonus: ${bh.txt}</span>
+          <span>⏱ ${bf}</span>
+        </div>
         <div class="bet-levels">
           ${pgBetLevels(g.idx,g.rtp,g.vl)}
         </div>
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo PG</a>
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo ${g.prov.split(' ')[0]}</a>
       </div>
     </div>
   </div>`;
@@ -449,16 +471,19 @@ function pgAiCard(g){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
   const scorePct=Math.min(100,Math.round((g.score||0.5)*100));
+  const bh=pgVolHint(g.vol);
+  const bf=pgBonusFreq(g.vol);
   return`<div class="game" data-pg-idx="${g.idx}" style="border-color:rgba(240,185,11,0.3)">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
         <div class="game-title">${g.title}</div>
-        <div class="game-provider">${g.prov} · ${g.n} votes</div>
+        <div class="game-provider">${g.prov} · ${g.n} lượt</div>
         <div class="badges">
           ${g.rtp>0?`<span class="badge b-rtp">RTP ${fmt(g.rtp)}%</span>`:''}
           <span class="badge b-wr">WR ${fmt1(g.bw)}%</span>
           <span class="badge ${volCls}">${g.vol}</span>
+          ${g.details&&g.details.paylines?`<span class="badge b-wr">Dòng ${g.details.paylines}</span>`:''}
           ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
         </div>
         <div class="play-now">
@@ -471,13 +496,17 @@ function pgAiCard(g){
           <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
           <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
         </div>
+        <div style="display:flex;gap:8px;margin:8px 0;font-size:10px;color:var(--text2)">
+          <span>${bh.icon} Bonus: ${bh.txt}</span>
+          <span>⏱ ${bf}</span>
+        </div>
         <div class="bet-levels">
           ${pgBetLevels(g.idx,g.rtp,g.vl)}
         </div>
         ${g.aiReasons?`<div style="margin:6px 0;padding:8px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px">
-          <strong style="color:var(--gold)">🧠 AI phân tích:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
+          <strong style="color:var(--gold)">🧠 AI:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
         </div>`:''}
-        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo PG</a>
+        <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo ${g.prov.split(' ')[0]}</a>
       </div>
     </div>
   </div>`;
@@ -620,7 +649,7 @@ async function init(){
   render();
 }
 
-setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;loadPG();if(filter.startsWith('fc'))render();}},1000);
+setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;loadPG();}},1000);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 init();
 </script>
