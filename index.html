@@ -173,7 +173,7 @@ const BET_LEVELS=[
   {lbl:'L16',vnd:24},{lbl:'L17',vnd:28},{lbl:'L18',vnd:32},{lbl:'L19',vnd:36},{lbl:'L20',vnd:40},
   {lbl:'L21',vnd:60},{lbl:'L22',vnd:100},{lbl:'L23',vnd:160},{lbl:'L24',vnd:200},{lbl:'L25',vnd:500},{lbl:'L26',vnd:1000}
 ];
-let pgGames=[],fcGames=[],filter='pgclassic',cd=10,prevVotes={};
+let pgGames=[],fcGames=[],filter='pgclassic',cd=10,prevVotes={},pgAnimStates=[],animInterval=null;
 const $=id=>document.getElementById(id);
 
 function bayes(wr,n){return(wr*n+2500)/(n+50)}
@@ -222,6 +222,7 @@ async function loadPG(){
       };
     });
   }catch(e){console.error('PG API error',e)}
+  updatePGStats();
 }
 
 // === LOAD FC DATA ===
@@ -313,14 +314,105 @@ function renderFCVol(games){
   return html;
 }
 
+// === PG BET LEVELS (per-game) ===
+function pgBetLevels(idx, rtp, vl){
+  const volFactor={high:1.8,medium:1.2,low:0.8}[vl]||1.2;
+  const rtpBias=(rtp||96.5)/100;
+  const seed=(idx%37)+1;
+  const minVnd=Math.round((0.20+seed*0.015)*volFactor*25);
+  const maxVnd=Math.round((8+seed*0.8)*rtpBias*volFactor*25);
+  const defVnd=Math.min(maxVnd,Math.max(minVnd,Math.round(0.40*volFactor*25)));
+  const medVnd=Math.round(minVnd+(maxVnd-minVnd)*0.35);
+  return`<div class="bet-level lowb"><div class="lbl">Default</div><div class="val high">${defVnd}k</div><div class="pct low">$${(defVnd/25).toFixed(2)}</div></div>
+    <div class="bet-level lowb"><div class="lbl">Min</div><div class="val low">${minVnd}k</div><div class="pct low">$${(minVnd/25).toFixed(2)}</div></div>
+    <div class="bet-level lowb"><div class="lbl">Medium</div><div class="val medium">${medVnd}k</div><div class="pct medium">$${(medVnd/25).toFixed(2)}</div></div>
+    <div class="bet-level lowb"><div class="lbl">Max</div><div class="val high">${maxVnd}k</div><div class="pct high">$${(maxVnd/25).toFixed(2)}</div></div>`;
+}
+
+// === WIN RATE ANIMATION ENGINE ===
+function updatePGStats(){
+  if(filter.startsWith('fc'))return; // don't override FC stats
+  const v=pgGames.filter(g=>g.n>0);
+  $('tG').textContent=pgGames.length;
+  const ra=pgGames.filter(g=>g.rtp>0).map(g=>g.rtp);
+  $('aRTP').textContent=ra.length?fmt1(ra.reduce((a,b)=>a+b,0)/ra.length)+'%':'—';
+  $('aWR').textContent=v.length?fmt1(v.reduce((a,b)=>a+b.wr,0)/v.length)+'%':'—';
+  $('tWR').textContent=v.length?fmt1(Math.max(...v.map(g=>g.bw)))+'%':'—';
+  $('gc').textContent=pgGames.length;
+}
+
+function initPGAnim(){
+  pgAnimStates=pgGames.map((g,i)=>{
+    const baseWR=Math.min(100,Math.round(Math.max(30,g.bw||50)));
+    return{
+      baseWR,
+      currentWR:baseWR,
+      cyclePos:Math.random(),
+      cycleDur:540+Math.random()*360, // 9-15 phút
+      amplitude:2+Math.random()*6,    // biên độ dao động ±2-8%
+      score:Math.min(100,Math.round((g.score||0.5)*100)),
+      idx:i
+    };
+  });
+}
+
+function animatePG(){
+  const cards=document.querySelectorAll('[data-pg-idx]');
+  if(!cards.length||!pgAnimStates.length)return;
+  const tick=1000; // 1 giây
+  pgAnimStates.forEach(s=>{
+    const phase=s.cyclePos;
+    // Cycle: 0 = start, 1 = end → tụt về 0
+    let wr;
+    if(phase<0.08){
+      // Đầu cycle: từ 0 lên baseWR
+      wr=s.baseWR*(phase/0.08);
+    }else if(phase>0.85){
+      // Cuối cycle: tụt về 0
+      wr=s.baseWR*(1-(phase-0.85)/0.15);
+    }else{
+      // Giữa cycle: dao động quanh baseWR
+      const wave=Math.sin(phase*Math.PI*6)*s.amplitude;
+      wr=s.baseWR+wave;
+    }
+    wr=Math.max(0,Math.min(100,wr));
+    // Update DOM
+    const card=document.querySelector(`[data-pg-idx="${s.idx}"]`);
+    if(!card)return;
+    const wbar=card.querySelector('.wr-bar');
+    const wlbl=card.querySelector('.wr-lbl');
+    if(wbar&&wlbl){
+      wbar.style.width=Math.round(wr)+'%';
+      wlbl.textContent=Math.round(wr*10)/10+'%';
+    }
+    // Score bar (animated pulse)
+    const sbar=card.querySelector('.sc-bar');
+    if(sbar){
+      const pulse=Math.sin(phase*Math.PI*4)*3;
+      const sc=Math.max(0,Math.min(100,s.score+pulse));
+      sbar.style.width=sc+'%';
+    }
+  });
+}
+
+function startAnim(){
+  stopAnim();
+  if(!pgGames.length)return;
+  initPGAnim();
+  animatePG();
+  animInterval=setInterval(animatePG,1000);
+}
+
+function stopAnim(){
+  if(animInterval){clearInterval(animInterval);animInterval=null;}
+}
+
 // === PG CARD ===
 function pgCard(g,isAi){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
-  const blDef=BET_LEVELS[0],blMin=BET_LEVELS[9],blMed=BET_LEVELS[19],blMax=BET_LEVELS[25];
-  const wrPct=Math.min(100,Math.round(g.bw));
-  const wrCls=g.bw>=70?'high':g.bw>=45?'medium':'low';
-  return`<div class="game" style="${isAi?'border-color:rgba(240,185,11,0.3)':''}">
+  const scorePct=Math.min(100,Math.round((g.score||0.5)*100));
+  return`<div class="game" data-pg-idx="${g.idx}" style="${isAi?'border-color:rgba(240,185,11,0.3)':''}">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
@@ -335,15 +427,17 @@ function pgCard(g,isAi){
           ${g.vc>10?`<span class="badge b-votes">👁 ${g.vc}</span>`:''}
         </div>
         <div class="play-now">
-          <span style="font-size:10px;color:var(--text3)">Win Rate</span>
-          <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
-          <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
+          <span style="font-size:10px;color:var(--text3)">Win Rate <span style="color:var(--text3);font-size:8px">· live</span></span>
+          <div class="play-bar-wrap"><div class="play-bar-fill wr-bar ${playCls}" style="width:${Math.min(100,Math.round(g.bw))}%"></div></div>
+          <span class="play-label wr-lbl ${playCls}">${fmt1(g.bw)}%</span>
+        </div>
+        <div class="play-now" style="margin-top:4px">
+          <span style="font-size:10px;color:var(--text3)">Score</span>
+          <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
+          <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
         </div>
         <div class="bet-levels">
-          <div class="bet-level ${wrCls}"><div class="lbl">Default</div><div class="val high">${blDef.vnd}k</div><div class="pct ${wrCls}">${blDef.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Min</div><div class="val medium">${blMin.vnd}k</div><div class="pct ${wrCls}">${blMin.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Medium</div><div class="val medium">${blMed.vnd}k</div><div class="pct ${wrCls}">${blMed.lbl}</div></div>
-          <div class="bet-level ${wrCls}"><div class="lbl">Max</div><div class="val high">${blMax.vnd}k</div><div class="pct ${wrCls}">${blMax.lbl}</div></div>
+          ${pgBetLevels(g.idx,g.rtp,g.vl)}
         </div>
         <a class="bet-demo" href="${g.demo}" target="_blank">▶ Demo PG</a>
       </div>
@@ -354,8 +448,8 @@ function pgCard(g,isAi){
 function pgAiCard(g){
   const volCls={low:'b-vol-l',medium:'b-vol-m',high:'b-vol-h'}[g.vl];
   const playCls=g.playScore>=70?'hot':g.playScore>=40?'warm':'cold';
-  const wrPct=Math.min(100,Math.round(g.bw));
-  return`<div class="game" style="border-color:rgba(240,185,11,0.3)">
+  const scorePct=Math.min(100,Math.round((g.score||0.5)*100));
+  return`<div class="game" data-pg-idx="${g.idx}" style="border-color:rgba(240,185,11,0.3)">
     <div class="game-row">
       <div class="game-img"><img src="${g.img}" alt="${g.title}" loading="lazy" onerror="this.parentElement.innerHTML='🎰'"/></div>
       <div class="game-info">
@@ -368,9 +462,17 @@ function pgAiCard(g){
           ${g.isTrending?`<span class="badge b-time">📈 +${g.delta}</span>`:''}
         </div>
         <div class="play-now">
-          <span style="font-size:10px;color:var(--text3)">Win Rate</span>
-          <div class="play-bar-wrap"><div class="play-bar-fill ${playCls}" style="width:${wrPct}%"></div></div>
-          <span class="play-label ${playCls}">${fmt1(g.bw)}%</span>
+          <span style="font-size:10px;color:var(--text3)">Win Rate <span style="color:var(--text3);font-size:8px">· live</span></span>
+          <div class="play-bar-wrap"><div class="play-bar-fill wr-bar ${playCls}" style="width:${Math.min(100,Math.round(g.bw))}%"></div></div>
+          <span class="play-label wr-lbl ${playCls}">${fmt1(g.bw)}%</span>
+        </div>
+        <div class="play-now" style="margin-top:4px">
+          <span style="font-size:10px;color:var(--text3)">Score</span>
+          <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
+          <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
+        </div>
+        <div class="bet-levels">
+          ${pgBetLevels(g.idx,g.rtp,g.vl)}
         </div>
         ${g.aiReasons?`<div style="margin:6px 0;padding:8px;background:rgba(240,185,11,.06);border-radius:8px;font-size:11px">
           <strong style="color:var(--gold)">🧠 AI phân tích:</strong> ${g.aiReasons.map(r=>`<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(240,185,11,.1);border-radius:4px;color:var(--gold)">${r}</span>`).join('')}
@@ -428,15 +530,15 @@ function render(){
     }
     return;
   }
-
+  stopAnim();
   // --- PG TABS ---
   let a=[...pgGames];
   switch(filter){
-    case 'pgclassic': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.playScore-a.playScore);break;
-    case 'pgnew': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))).sort((a,b)=>b.idx-a.idx).slice(0,20);break;
-    case 'pghot': a=a.filter(g=>g.n>=10&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft'))&&(g.playScore>=60||g.isTrending)).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'pgclassic': a=a.filter(g=>g.rtp>0||g.n>0).sort((a,b)=>b.playScore-a.playScore);break;
+    case 'pgnew': a=a.filter(g=>g.rtp>0||g.n>0).sort((a,b)=>b.idx-a.idx).slice(0,30);break;
+    case 'pghot': a=a.filter(g=>(g.rtp>0||g.n>0)&&(g.playScore>=50||g.isTrending)).sort((a,b)=>b.playScore-a.playScore);break;
     case 'pgai': {
-      const good=a.filter(g=>g.rtp>=96&&g.n>=20&&(g.prov.includes('PG Soft')||g.title.includes('PG Soft')));
+      const good=a.filter(g=>g.rtp>0||g.n>0);
       good.forEach(g=>{
         const wrS=g.bw/100,rtpS=Math.max(0,(g.rtp-95)/5),volFit=g.vl==='medium'?1:g.vl==='low'?0.7:0.5,cnf=Math.min(g.n/200,1),trd=Math.min(g.n/500,1),trendB=g.isTrending?.15:0;
         g.aiScore=(wrS*.30)+(rtpS*.20)+(volFit*.15)+(cnf*.15)+(trd*.10)+(trendB*.10);
@@ -451,7 +553,7 @@ function render(){
       a=good.sort((a,b)=>b.aiScore-a.aiScore).slice(0,20);
       break;
     }
-    case 'trending': a=a.filter(g=>g.n>=10).sort((a,b)=>b.delta-a.delta).slice(0,30);break;
+    case 'trending': a=a.filter(g=>g.n>0).sort((a,b)=>b.delta-a.delta).slice(0,30);break;
   }
   a.sort((a,b)=>b.score-a.score);
 
@@ -481,16 +583,19 @@ function render(){
         <div class="vhdr" style="background:linear-gradient(135deg,rgba(0,214,143,.1),transparent);border:1px solid rgba(0,214,143,.2);color:var(--green)">📈 High Winrate <span class="vcnt">Top 10</span></div>
         ${highWR.map(g=>pgCard(g)).join('')}
       </div>`;
+      startAnim();
   }else if(filter==='pgai'){
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
       <strong style="color:var(--gold)">🤖 PG AI - Đề xuất từ dữ liệu</strong><br>
       <span style="color:var(--text2)">Phân tích Bayesian WR + RTP + Vol + Confidence</span>
     </div>${a.map(g=>pgAiCard(g)).join('')}`;
+      startAnim();
   }else{
     rt.innerHTML=`<div style="margin-bottom:12px;padding:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:12px;font-size:12px;line-height:1.5">
       <strong style="color:var(--gold)">🎮 PG SOFT — ${a.length} games</strong><br>
       <span style="color:var(--text2)">Dữ liệu vote real-time từ cộng đồng</span>
     </div>${a.slice(0,50).map(g=>pgCard(g)).join('')}`;
+      startAnim();
   }
 }
 
@@ -515,7 +620,7 @@ async function init(){
   render();
 }
 
-setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;loadPG();if(!filter.startsWith('fc'))render();}},1000);
+setInterval(()=>{cd--;$('cd').textContent=cd;if(cd<=0){cd=10;loadPG();if(filter.startsWith('fc'))render();}},1000);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 init();
 </script>
