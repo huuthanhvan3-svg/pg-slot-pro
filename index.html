@@ -345,9 +345,11 @@ function pgBetLevels(idx, rtp, vl){
     <div class="bet-level lowb"><div class="lbl">Max</div><div class="val high">${maxVnd}k</div><div class="pct high">$${(maxVnd/25).toFixed(2)}</div></div>`;
 }
 
-// === WIN RATE ANIMATION ENGINE ===
+// === WIN RATE + SCORE ANIMATION ENGINE ===
+// Win Rate: chạy từ 0 → baseWR trong 10-15 phút rồi reset
+// Score: chạy từ 0 → 100 trong 10-15 phút rồi reset
 function updatePGStats(){
-  if(filter.startsWith('fc'))return; // don't override FC stats
+  if(filter.startsWith('fc'))return;
   const v=pgGames.filter(g=>g.n>0);
   $('tG').textContent=pgGames.length;
   const ra=pgGames.filter(g=>g.rtp>0).map(g=>g.rtp);
@@ -358,40 +360,41 @@ function updatePGStats(){
 }
 
 function initPGAnim(){
+  const cycleMs = (10 + Math.random()*5)*60*1000; // 10-15 phút
   pgAnimStates=pgGames.map((g,i)=>{
-    const baseWR=Math.min(100,Math.round(Math.max(30,g.bw||50)));
     return{
-      baseWR,
-      currentWR:baseWR,
-      cyclePos:Math.random(),
-      cycleDur:540+Math.random()*360, // 9-15 phút
-      amplitude:2+Math.random()*6,    // biên độ dao động ±2-8%
-      score:Math.min(100,Math.round((g.score||0.5)*100)),
+      baseWR: Math.min(100,Math.max(30,g.bw||50)),
+      score: Math.min(100,Math.round((g.score||0.5)*100)),
+      cycleDur: cycleMs,
+      startTime: Date.now() - Math.floor(Math.random()*cycleMs), // random phase
       idx:i
     };
   });
 }
 
 function animatePG(){
+  const now=Date.now();
   const cards=document.querySelectorAll('[data-pg-idx]');
   if(!cards.length||!pgAnimStates.length)return;
-  const tick=1000; // 1 giây
   pgAnimStates.forEach(s=>{
-    const phase=s.cyclePos;
-    // Cycle: 0 = start, 1 = end → tụt về 0
+    const elapsed=(now-s.startTime)%s.cycleDur;
+    const phase=elapsed/s.cycleDur; // 0→1 trong 10-15p
+    // Win Rate: 0 → baseWR → 0 (triangle wave)
     let wr;
-    if(phase<0.08){
-      // Đầu cycle: từ 0 lên baseWR
-      wr=s.baseWR*(phase/0.08);
-    }else if(phase>0.85){
-      // Cuối cycle: tụt về 0
-      wr=s.baseWR*(1-(phase-0.85)/0.15);
+    if(phase<0.5){
+      wr=s.baseWR*(phase/0.5); // 0 → baseWR
     }else{
-      // Giữa cycle: dao động quanh baseWR
-      const wave=Math.sin(phase*Math.PI*6)*s.amplitude;
-      wr=s.baseWR+wave;
+      wr=s.baseWR*(1-(phase-0.5)/0.5); // baseWR → 0
     }
     wr=Math.max(0,Math.min(100,wr));
+    // Score: 0 → 100 → 0 (triangle wave)
+    let sc;
+    if(phase<0.5){
+      sc=s.score*(phase/0.5);
+    }else{
+      sc=s.score*(1-(phase-0.5)/0.5);
+    }
+    sc=Math.max(0,Math.min(100,sc));
     // Update DOM
     const card=document.querySelector(`[data-pg-idx="${s.idx}"]`);
     if(!card)return;
@@ -401,12 +404,13 @@ function animatePG(){
       wbar.style.width=Math.round(wr)+'%';
       wlbl.textContent=Math.round(wr*10)/10+'%';
     }
-    // Score bar (animated pulse)
     const sbar=card.querySelector('.sc-bar');
     if(sbar){
-      const pulse=Math.sin(phase*Math.PI*4)*3;
-      const sc=Math.max(0,Math.min(100,s.score+pulse));
-      sbar.style.width=sc+'%';
+      sbar.style.width=Math.round(sc)+'%';
+    }
+    const slbl=card.querySelector('.sc-lbl');
+    if(slbl){
+      slbl.textContent='★ '+Math.round(sc);
     }
   });
 }
@@ -452,7 +456,7 @@ function pgCard(g,isAi){
         <div class="play-now" style="margin-top:4px">
           <span style="font-size:10px;color:var(--text3)">Score</span>
           <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
-          <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
+          <span class="play-label sc-lbl" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
         </div>
         <div style="display:flex;gap:8px;margin:8px 0;font-size:10px;color:var(--text2)">
           <span>${bh.icon} Bonus: ${bh.txt}</span>
@@ -493,7 +497,7 @@ function pgAiCard(g){
         <div class="play-now" style="margin-top:4px">
           <span style="font-size:10px;color:var(--text3)">Score</span>
           <div class="play-bar-wrap"><div class="play-bar-fill sc-bar" style="width:${scorePct}%;background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
-          <span class="play-label" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
+          <span class="play-label sc-lbl" style="color:var(--purple);font-size:10px">★ ${scorePct}</span>
         </div>
         <div style="display:flex;gap:8px;margin:8px 0;font-size:10px;color:var(--text2)">
           <span>${bh.icon} Bonus: ${bh.txt}</span>
